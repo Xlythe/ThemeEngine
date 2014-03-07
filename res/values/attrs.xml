@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="theme">
+        <attr name="button" format="reference" />
+        <attr name="textColor" format="reference" />
+        <attr name="textColorHint" format="reference" />
+        <attr name="src" format="reference" />
+        <attr name="themeDivider" format="reference" />
+        <attr name="themeBackground" format="reference" />
+    </declare-styleable>
+</resources>
