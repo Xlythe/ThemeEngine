@@ -1,5 +1,7 @@
 package com.xlythe.engine.theme;
 
+import java.io.Serializable;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +10,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 
-public class App {
+public class App implements Serializable {
+    private static final long serialVersionUID = -7796311962836649402L;
     private String name;
     private String clazz;
     private transient Drawable image;
@@ -20,6 +23,14 @@ public class App {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getClazz() {
+        return name;
+    }
+
+    public void setClazz(String clazz) {
+        this.clazz = clazz;
     }
 
     public Drawable getImage() {

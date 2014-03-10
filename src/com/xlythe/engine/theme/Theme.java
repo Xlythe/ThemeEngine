@@ -28,7 +28,7 @@ public class Theme {
     public static final String RAW = "raw";
     public static final String DRAWABLE = "drawable";
     public static final String STRING = "string";
-    public static String PACKAGE_NAME;
+    private static String PACKAGE_NAME;
     private static SparseArray<Theme.Res> RES_MAP;
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<String, Typeface>();
     private static final Map<String, Drawable> DRAWABLE_MAP = new HashMap<String, Drawable>();
@@ -179,20 +179,20 @@ public class Theme {
      * Gets drawable from theme apk
      * */
     public static Drawable getDrawable(Context context, String name) {
-        if(DRAWABLE_MAP.containsKey(getPackageName() + "_" + name)) {
-            return DRAWABLE_MAP.get(getPackageName() + "_" + name).getConstantState().newDrawable();
+        if(DRAWABLE_MAP.containsKey(getKey(context) + "_" + name)) {
+            return DRAWABLE_MAP.get(getKey(context) + "_" + name).getConstantState().newDrawable();
         }
         int id = getId(context, DRAWABLE, name);
         if(id == 0) {
             id = context.getResources().getIdentifier(name, DRAWABLE, context.getPackageName());
             if(id != 0) {
-                DRAWABLE_MAP.put(getPackageName() + "_" + name, context.getResources().getDrawable(id));
-                return DRAWABLE_MAP.get(getPackageName() + "_" + name);
+                DRAWABLE_MAP.put(getKey(context) + "_" + name, context.getResources().getDrawable(id));
+                return DRAWABLE_MAP.get(getKey(context) + "_" + name);
             }
             else return null;
         }
-        DRAWABLE_MAP.put(getPackageName() + "_" + name, getResources(context).getDrawable(id));
-        return DRAWABLE_MAP.get(getPackageName() + "_" + name);
+        DRAWABLE_MAP.put(getKey(context) + "_" + name, getResources(context).getDrawable(id));
+        return DRAWABLE_MAP.get(getKey(context) + "_" + name);
     }
 
     /**
@@ -213,17 +213,17 @@ public class Theme {
      * Gets color from theme apk
      * */
     public static int getColor(Context context, String name) {
-        if(COLOR_MAP.containsKey(getPackageName() + "_" + name)) {
-            return COLOR_MAP.get(getPackageName() + "_" + name);
+        if(COLOR_MAP.containsKey(getKey(context) + "_" + name)) {
+            return COLOR_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
         if(id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
-            COLOR_MAP.put(getPackageName() + "_" + name, context.getResources().getColor(id));
-            return COLOR_MAP.get(getPackageName() + "_" + name);
+            COLOR_MAP.put(getKey(context) + "_" + name, context.getResources().getColor(id));
+            return COLOR_MAP.get(getKey(context) + "_" + name);
         }
-        COLOR_MAP.put(getPackageName() + "_" + name, getResources(context).getColor(id));
-        return COLOR_MAP.get(getPackageName() + "_" + name);
+        COLOR_MAP.put(getKey(context) + "_" + name, getResources(context).getColor(id));
+        return COLOR_MAP.get(getKey(context) + "_" + name);
     }
 
     /**
@@ -244,17 +244,17 @@ public class Theme {
      * Gets color from theme apk
      * */
     public static ColorStateList getColorStateList(Context context, String name) {
-        if(COLOR_STATE_LIST_MAP.containsKey(getPackageName() + "_" + name)) {
-            return COLOR_STATE_LIST_MAP.get(getPackageName() + "_" + name);
+        if(COLOR_STATE_LIST_MAP.containsKey(getKey(context) + "_" + name)) {
+            return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
         if(id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
-            COLOR_STATE_LIST_MAP.put(getPackageName() + "_" + name, context.getResources().getColorStateList(id));
-            return COLOR_STATE_LIST_MAP.get(getPackageName() + "_" + name);
+            COLOR_STATE_LIST_MAP.put(getKey(context) + "_" + name, context.getResources().getColorStateList(id));
+            return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
         }
-        COLOR_STATE_LIST_MAP.put(getPackageName() + "_" + name, getResources(context).getColorStateList(id));
-        return COLOR_STATE_LIST_MAP.get(getPackageName() + "_" + name);
+        COLOR_STATE_LIST_MAP.put(getKey(context) + "_" + name, getResources(context).getColorStateList(id));
+        return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
     }
 
     /**
@@ -376,8 +376,8 @@ public class Theme {
     }
 
     public static Typeface getFont(Context context) {
-        if(TYPEFACE_MAP.containsKey(getPackageName())) {
-            return TYPEFACE_MAP.get(getPackageName());
+        if(TYPEFACE_MAP.containsKey(getKey(context))) {
+            return TYPEFACE_MAP.get(getKey(context));
         }
         AssetManager am = getResources(context).getAssets();
         try {
@@ -393,8 +393,8 @@ public class Theme {
                         e.printStackTrace();
                     }
 
-                    TYPEFACE_MAP.put(getPackageName(), t);
-                    return TYPEFACE_MAP.get(getPackageName());
+                    TYPEFACE_MAP.put(getKey(context), t);
+                    return TYPEFACE_MAP.get(getKey(context));
                 }
             }
         }
@@ -416,16 +416,16 @@ public class Theme {
                         e.printStackTrace();
                     }
 
-                    TYPEFACE_MAP.put(getPackageName(), t);
-                    return TYPEFACE_MAP.get(getPackageName());
+                    TYPEFACE_MAP.put(getKey(context), t);
+                    return TYPEFACE_MAP.get(getKey(context));
                 }
             }
         }
         catch(Exception e) {
             e.printStackTrace();
         }
-        TYPEFACE_MAP.put(getPackageName(), null);
-        return TYPEFACE_MAP.get(getPackageName());
+        TYPEFACE_MAP.put(getKey(context), null);
+        return TYPEFACE_MAP.get(getKey(context));
     }
 
     /**
@@ -454,5 +454,9 @@ public class Theme {
             app.setPackageName(info.activityInfo.applicationInfo.packageName);
         }
         return apps;
+    }
+
+    private static String getKey(Context context) {
+        return context.getPackageName() + "_" + getPackageName();
     }
 }
