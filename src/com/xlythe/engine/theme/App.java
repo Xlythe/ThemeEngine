@@ -16,6 +16,15 @@ public class App implements Serializable {
     private String clazz;
     private transient Drawable image;
     private String packageName;
+    private double price;
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
 
     public String getName() {
         return name;

@@ -21,6 +21,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.support.v4.util.LruCache;
 import android.util.SparseArray;
 
 public class Theme {
@@ -31,9 +32,9 @@ public class Theme {
     private static String PACKAGE_NAME;
     private static SparseArray<Theme.Res> RES_MAP;
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<String, Typeface>();
-    private static final Map<String, Drawable> DRAWABLE_MAP = new HashMap<String, Drawable>();
-    private static final Map<String, Integer> COLOR_MAP = new HashMap<String, Integer>();
-    private static final Map<String, ColorStateList> COLOR_STATE_LIST_MAP = new HashMap<String, ColorStateList>();
+    private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<String, Drawable>(4 * 1024 * 1024);
+    private static final LruCache<String, Integer> COLOR_MAP = new LruCache<String, Integer>(1 * 1024 * 1024);
+    private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<String, ColorStateList>(1 * 1024 * 1024);
 
     public static class Res {
         private final String type;
@@ -99,13 +100,6 @@ public class Theme {
                 }
             }
         }
-    }
-
-    public static void clear() {
-        TYPEFACE_MAP.clear();
-        DRAWABLE_MAP.clear();
-        COLOR_MAP.clear();
-        COLOR_STATE_LIST_MAP.clear();
     }
 
     public static Context getThemeContext(Context context) {
@@ -179,7 +173,7 @@ public class Theme {
      * Gets drawable from theme apk
      * */
     public static Drawable getDrawable(Context context, String name) {
-        if(DRAWABLE_MAP.containsKey(getKey(context) + "_" + name)) {
+        if(DRAWABLE_MAP.get(getKey(context) + "_" + name) != null) {
             return DRAWABLE_MAP.get(getKey(context) + "_" + name).getConstantState().newDrawable();
         }
         int id = getId(context, DRAWABLE, name);
@@ -213,7 +207,7 @@ public class Theme {
      * Gets color from theme apk
      * */
     public static int getColor(Context context, String name) {
-        if(COLOR_MAP.containsKey(getKey(context) + "_" + name)) {
+        if(COLOR_MAP.get(getKey(context) + "_" + name) != null) {
             return COLOR_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
@@ -244,7 +238,7 @@ public class Theme {
      * Gets color from theme apk
      * */
     public static ColorStateList getColorStateList(Context context, String name) {
-        if(COLOR_STATE_LIST_MAP.containsKey(getKey(context) + "_" + name)) {
+        if(COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name) != null) {
             return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
