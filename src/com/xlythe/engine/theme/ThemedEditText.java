@@ -25,10 +25,7 @@ public class ThemedEditText extends EditText {
 
     private void setup(Context context, AttributeSet attrs) {
         // Get font
-        Typeface t = Theme.getFont(context);
-        if(t != null) {
-            setTypeface(t);
-        }
+        setDefaultFont();
 
         if(attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
@@ -42,7 +39,26 @@ public class ThemedEditText extends EditText {
                 // Get background
                 setBackground(Theme.get(a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
+                // Get custom font
+                setFont(a.getString(R.styleable.theme_font));
+
                 a.recycle();
+            }
+        }
+    }
+
+    public void setDefaultFont() {
+        Typeface t = Theme.getFont(getContext());
+        if(t != null) {
+            setTypeface(t);
+        }
+    }
+
+    public void setFont(String font) {
+        if(font != null) {
+            Typeface t = Theme.getFont(getContext(), font);
+            if(t != null) {
+                setTypeface(t);
             }
         }
     }

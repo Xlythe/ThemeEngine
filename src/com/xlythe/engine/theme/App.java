@@ -17,14 +17,7 @@ public class App implements Serializable {
     private transient Drawable image;
     private String packageName;
     private double price;
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
+    private String imageUrl;
 
     public String getName() {
         return name;
@@ -40,6 +33,22 @@ public class App implements Serializable {
 
     public void setClazz(String clazz) {
         this.clazz = clazz;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Drawable getImage() {

@@ -42,7 +42,19 @@ public class ThemedTextView extends TextView {
                 // Get background
                 setBackground(Theme.get(a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
+                // Get custom font
+                setFont(a.getString(R.styleable.theme_font));
+
                 a.recycle();
+            }
+        }
+    }
+
+    public void setFont(String font) {
+        if(font != null) {
+            Typeface t = Theme.getFont(getContext(), font);
+            if(t != null) {
+                setTypeface(t);
             }
         }
     }
