@@ -1,7 +1,5 @@
 package com.xlythe.engine.theme;
 
-import java.io.Serializable;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
+
+import java.io.Serializable;
 
 public class App implements Serializable {
     private static final long serialVersionUID = -7796311962836649402L;
@@ -18,6 +18,45 @@ public class App implements Serializable {
     private String packageName;
     private double price;
     private String imageUrl;
+
+    public static boolean doesPackageExists(Context context, String targetPackage) {
+        try {
+            context.getPackageManager().getApplicationInfo(targetPackage, 0);
+            return true;
+        }
+        catch(PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static App getApp(Context context, String packageName) {
+        App app = new App();
+
+        try {
+            PackageManager manager = context.getPackageManager();
+            ResolveInfo info = manager.resolveActivity(manager.getLaunchIntentForPackage(packageName), 0);
+
+            app.name = info.loadLabel(manager).toString();
+            app.image = info.loadIcon(manager);
+            app.clazz = info.activityInfo.name;
+            app.packageName = packageName;
+        }
+        catch(Exception e) {
+            // Doesn't work on some older phones
+            e.printStackTrace();
+
+            // This does work, however. So we can get some basic information
+            try {
+                app.image = context.getPackageManager().getApplicationIcon(packageName);
+            }
+            catch(NameNotFoundException e1) {
+                e1.printStackTrace();
+            }
+            app.packageName = packageName;
+        }
+
+        return app;
+    }
 
     public String getName() {
         return name;
@@ -82,42 +121,13 @@ public class App implements Serializable {
         this.packageName = packageName;
     }
 
-    public static boolean doesPackageExists(Context context, String targetPackage) {
+    @Override
+    public App clone() {
         try {
-            context.getPackageManager().getApplicationInfo(targetPackage, 0);
-            return true;
+            return (App) super.clone();
         }
-        catch(PackageManager.NameNotFoundException e) {
-            return false;
+        catch(CloneNotSupportedException e) {
+            return null;
         }
-    }
-
-    public static App getApp(Context context, String packageName) {
-        App app = new App();
-
-        try {
-            PackageManager manager = context.getPackageManager();
-            ResolveInfo info = manager.resolveActivity(manager.getLaunchIntentForPackage(packageName), 0);
-
-            app.name = info.loadLabel(manager).toString();
-            app.image = info.loadIcon(manager);
-            app.clazz = info.activityInfo.name;
-            app.packageName = packageName;
-        }
-        catch(Exception e) {
-            // Doesn't work on some older phones
-            e.printStackTrace();
-
-            // This does work, however. So we can get some basic information
-            try {
-                app.image = context.getPackageManager().getApplicationIcon(packageName);
-            }
-            catch(NameNotFoundException e1) {
-                e1.printStackTrace();
-            }
-            app.packageName = packageName;
-        }
-
-        return app;
     }
 }
