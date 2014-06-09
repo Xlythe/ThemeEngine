@@ -1,24 +1,5 @@
 package com.xlythe.engine.theme;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
-import android.net.Uri;
-import android.support.v4.util.LruCache;
-import android.util.Log;
-import android.util.SparseArray;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,6 +10,24 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
+import android.net.Uri;
+import android.support.v4.util.LruCache;
+import android.util.Log;
+import android.util.SparseArray;
+
 public class Theme {
     public static final String COLOR = "color";
     public static final String RAW = "raw";
@@ -36,7 +35,7 @@ public class Theme {
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<String, Typeface>();
-    private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<String, Drawable>(4 * 1024 * 1024);
+    private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<String, Drawable>(1 * 1024 * 1024);
     private static final LruCache<String, Integer> COLOR_MAP = new LruCache<String, Integer>(1 * 1024 * 1024);
     private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<String, ColorStateList>(1 * 1024 * 1024);
     private static String PACKAGE_NAME;
@@ -45,28 +44,21 @@ public class Theme {
     @SuppressWarnings("rawtypes")
     public static void buildResourceMap(Class r) {
         RES_MAP = new SparseArray<Theme.Res>();
+        Log.d("Theme", "Building resource map");
+        load(r, COLOR, "color");
+        load(r, DRAWABLE, "drawable");
+        load(r, BOOLEAN, "bool");
+        load(r, RAW, "raw");
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void load(Class r, String label, String clazz) {
         try {
-            Log.d("Theme", "Building resource map");
-            Class color = Class.forName(r.getName() + "$color");
-            for(Field f : color.getFields()) {
-                RES_MAP.put(f.getInt(null), new Res(COLOR, f.getName()));
+            Class loadedClazz = Class.forName(r.getName() + "$" + clazz);
+            for(Field f : loadedClazz.getFields()) {
+                RES_MAP.put(f.getInt(null), new Res(label, f.getName()));
             }
-            Log.d("Theme", "color loaded");
-            Class drawable = Class.forName(r.getName() + "$drawable");
-            for(Field f : drawable.getFields()) {
-                RES_MAP.put(f.getInt(null), new Res(DRAWABLE, f.getName()));
-            }
-            Log.d("Theme", "drawable loaded");
-            Class bool = Class.forName(r.getName() + "$bool");
-            for(Field f : bool.getFields()) {
-                RES_MAP.put(f.getInt(null), new Res(BOOLEAN, f.getName()));
-            }
-            Log.d("Theme", "bool loaded");
-            Class raw = Class.forName(r.getName() + "$raw");
-            for(Field f : raw.getFields()) {
-                RES_MAP.put(f.getInt(null), new Res(RAW, f.getName()));
-            }
-            Log.d("Theme", "raw loaded");
+            Log.d("Theme", clazz + " loaded");
         }
         catch(IllegalArgumentException e) {
             e.printStackTrace();

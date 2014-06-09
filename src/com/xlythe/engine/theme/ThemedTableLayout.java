@@ -4,21 +4,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.widget.ListView;
+import android.widget.TableLayout;
 
-public class ThemedListView extends ListView {
-    public ThemedListView(Context context) {
+public class ThemedTableLayout extends TableLayout {
+    public ThemedTableLayout(Context context) {
         super(context);
         setup(context, null);
     }
 
-    public ThemedListView(Context context, AttributeSet attrs) {
+    public ThemedTableLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs);
-    }
-
-    public ThemedListView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
         setup(context, attrs);
     }
 
@@ -37,15 +32,12 @@ public class ThemedListView extends ListView {
         }
     }
 
+    @SuppressLint("NewApi")
     public void setDivider(Theme.Res res) {
         if(res != null) {
             if(Theme.DRAWABLE.equals(res.getType())) {
-                try {
-                    setDivider(Theme.getDrawable(getContext(), res.getName()));
-                }
-                catch(Exception e) {
-                    // Not supported on some phones...
-                    e.printStackTrace();
+                if(android.os.Build.VERSION.SDK_INT >= 11) {
+                    setDividerDrawable(Theme.getDrawable(getContext(), res.getName()));
                 }
             }
         }
