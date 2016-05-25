@@ -29,11 +29,14 @@ import android.util.Log;
 import android.util.SparseArray;
 
 public class Theme {
+    private static final String TAG = "Theme";
+
     public static final String COLOR = "color";
     public static final String RAW = "raw";
     public static final String DRAWABLE = "drawable";
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
+    public static final String DIMEN = "dimen";
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<String, Typeface>();
     private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<String, Drawable>(1 * 1024 * 1024);
     private static final LruCache<String, Integer> COLOR_MAP = new LruCache<String, Integer>(1 * 1024 * 1024);
@@ -44,10 +47,11 @@ public class Theme {
     @SuppressWarnings("rawtypes")
     public static void buildResourceMap(Class r) {
         RES_MAP = new SparseArray<Theme.Res>();
-        Log.d("Theme", "Building resource map");
+        Log.d(TAG, "Building resource map");
         load(r, COLOR, "color");
         load(r, DRAWABLE, "drawable");
         load(r, BOOLEAN, "bool");
+        load(r, DIMEN, "dimen");
         load(r, RAW, "raw");
     }
 
@@ -56,15 +60,17 @@ public class Theme {
         try {
             Class loadedClazz = Class.forName(r.getName() + "$" + clazz);
             for(Field f : loadedClazz.getFields()) {
-                RES_MAP.put(f.getInt(null), new Res(label, f.getName()));
+                try {
+                    RES_MAP.put(f.getInt(null), new Res(label, f.getName()));
+                }
+                catch(IllegalArgumentException e) {
+                    Log.e(TAG, "Reflection failed", e);
+                }
+                catch(IllegalAccessException e) {
+                    Log.e(TAG, "Reflection failed", e);
+                }
             }
-            Log.d("Theme", clazz + " loaded");
-        }
-        catch(IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-        catch(IllegalAccessException e) {
-            e.printStackTrace();
+            Log.d(TAG, clazz + " loaded");
         }
         catch(ClassNotFoundException e) {
             // Do nothing
@@ -76,7 +82,7 @@ public class Theme {
             return context.createPackageContext(getPackageName(), Context.CONTEXT_INCLUDE_CODE + Context.CONTEXT_IGNORE_SECURITY);
         }
         catch(NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to create a context", e);
         }
         return null;
     }
@@ -89,7 +95,7 @@ public class Theme {
             return context.getPackageManager().getResourcesForApplication(getPackageName());
         }
         catch(NameNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed to get " + getPackageName() + "'s resources. Returning resources from the context instead.", e);
             return context.getResources();
         }
     }
@@ -125,26 +131,61 @@ public class Theme {
     }
 
     /**
-     * Gets string from theme apk
+     * Gets boolean from theme apk
      */
     public static Boolean getBoolean(Context context, int resId) {
         return getBoolean(context, Theme.get(resId));
     }
 
     /**
-     * Gets string from theme apk
+     * Gets boolean from theme apk
      */
     public static Boolean getBoolean(Context context, Res res) {
         return getBoolean(context, res.getName());
     }
 
     /**
-     * Gets string from theme apk
+     * Gets boolean from theme apk
      */
     public static Boolean getBoolean(Context context, String name) {
         int id = getId(context, BOOLEAN, name);
-        if(id == 0) return null;
+        if(id == 0) {
+            id = context.getResources().getIdentifier(name, BOOLEAN, context.getPackageName());
+            if(id != 0) {
+                return context.getResources().getBoolean(id);
+            }
+            else return null;
+        }
         return getResources(context).getBoolean(id);
+    }
+
+    /**
+     * Gets dimen from theme apk
+     */
+    public static Float getDimen(Context context, int resId) {
+        return getDimen(context, Theme.get(resId));
+    }
+
+    /**
+     * Gets dimen from theme apk
+     */
+    public static Float getDimen(Context context, Res res) {
+        return getDimen(context, res.getName());
+    }
+
+    /**
+     * Gets dimen from theme apk
+     */
+    public static Float getDimen(Context context, String name) {
+        int id = getId(context, DIMEN, name);
+        if(id == 0) {
+            id = context.getResources().getIdentifier(name, DIMEN, context.getPackageName());
+            if(id != 0) {
+                return context.getResources().getDimension(id);
+            }
+            else return null;
+        }
+        return getResources(context).getDimension(id);
     }
 
     /**
@@ -256,13 +297,13 @@ public class Theme {
             return field.getInt(null);
         }
         catch(RuntimeException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Ignoring runtime exception.", e);
         }
         catch(NoSuchFieldException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Reflection failed", e);
         }
         catch(IllegalAccessException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Reflection failed", e);
         }
         return 0;
     }
@@ -345,7 +386,9 @@ public class Theme {
                 id = context.getResources().getIdentifier(res.getName(), res.getType(), context.getPackageName());
                 afd = context.getResources().openRawResourceFd(id);
             }
-            afd = getThemeContext(context).getResources().openRawResourceFd(id);
+            else {
+                afd = getThemeContext(context).getResources().openRawResourceFd(id);
+            }
             mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             afd.close();
             mp.prepare();
@@ -359,6 +402,10 @@ public class Theme {
             mp = null;
         }
         return millis;
+    }
+
+    public static void setFont(Context context, Typeface typeface) {
+        TYPEFACE_MAP.put(getKey(context) + "_" + "font", typeface);
     }
 
     public static Typeface getFont(Context context) {
@@ -380,6 +427,7 @@ public class Theme {
                 FileInputStream in = new FileInputStream(a.getFileDescriptor());
                 in.skip(a.getStartOffset());
                 File file = new File(context.getCacheDir(), name + s);
+                file.delete();
                 file.createNewFile();
                 FileOutputStream fOutput = new FileOutputStream(file);
                 byte[] dataBuffer = new byte[1024];
