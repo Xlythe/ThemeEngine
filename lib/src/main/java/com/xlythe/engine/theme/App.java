@@ -74,14 +74,6 @@ public class App implements Serializable {
         this.clazz = clazz;
     }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }

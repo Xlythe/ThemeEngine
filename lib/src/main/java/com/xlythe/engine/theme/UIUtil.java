@@ -111,7 +111,7 @@ public class UIUtil {
 	public static void measureView(View v) {
 		if (v.getHeight() == 0) {
 			v.measure(MeasureSpec.makeMeasureSpec(getWindowWidth(v.getContext()), MeasureSpec.AT_MOST),
-					MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE, MeasureSpec.AT_MOST));
+					MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE / 2, MeasureSpec.AT_MOST));
 			layoutAllViews(v, 0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
 		}
 	}

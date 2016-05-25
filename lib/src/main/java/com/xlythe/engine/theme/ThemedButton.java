@@ -34,13 +34,13 @@ public class ThemedButton extends Button {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
 			if (a != null) {
 				// Get text color
-				setTextColor(Theme.get(a.getResourceId(R.styleable.theme_textColor, 0)));
+				setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColor, 0)));
 
 				// Get text hint color
-				setHintTextColor(Theme.get(a.getResourceId(R.styleable.theme_textColorHint, 0)));
+				setHintTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorHint, 0)));
 
 				// Get background
-				setBackground(Theme.get(a.getResourceId(R.styleable.theme_themeBackground, 0)));
+				setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
 				// Get custom font
 				setFont(a.getString(R.styleable.theme_font));
@@ -87,6 +87,24 @@ public class ThemedButton extends Button {
 				} else {
 					setBackground(Theme.getDrawable(getContext(), res.getName()));
 				}
+			}
+		}
+	}
+
+	public void setWidth(Theme.Res res) {
+		if(res != null) {
+			if(Theme.DIMEN.equals(res.getType())) {
+				getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+				requestLayout();
+			}
+		}
+	}
+
+	public void setHeight(Theme.Res res) {
+		if(res != null) {
+			if(Theme.DIMEN.equals(res.getType())) {
+				getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+				requestLayout();
 			}
 		}
 	}

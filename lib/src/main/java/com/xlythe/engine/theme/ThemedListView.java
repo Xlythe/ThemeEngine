@@ -27,10 +27,10 @@ public class ThemedListView extends ListView {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
             if(a != null) {
                 // Get divider
-                setDivider(Theme.get(a.getResourceId(R.styleable.theme_themeDivider, 0)));
+                setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themeDivider, 0)));
 
                 // Get background
-                setBackground(Theme.get(a.getResourceId(R.styleable.theme_themeBackground, 0)));
+                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
                 a.recycle();
             }

@@ -28,7 +28,7 @@ public class ThemedRelativeLayout extends RelativeLayout {
 			TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
 			if (a != null) {
 				// Get background
-				setBackground(Theme.get(a.getResourceId(R.styleable.theme_themeBackground, 0)));
+				setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
 				a.recycle();
 			}
