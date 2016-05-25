@@ -26,7 +26,6 @@ import android.media.SoundPool;
 import android.net.Uri;
 import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.util.SparseArray;
 
 public class Theme {
     private static final String TAG = "Theme";
@@ -37,45 +36,11 @@ public class Theme {
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
     public static final String DIMEN = "dimen";
-    private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<String, Typeface>();
-    private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<String, Drawable>(1 * 1024 * 1024);
-    private static final LruCache<String, Integer> COLOR_MAP = new LruCache<String, Integer>(1 * 1024 * 1024);
-    private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<String, ColorStateList>(1 * 1024 * 1024);
+    private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<>();
+    private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<>(100);
+    private static final LruCache<String, Integer> COLOR_MAP = new LruCache<>(100);
+    private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<>(100);
     private static String PACKAGE_NAME;
-    private static SparseArray<Theme.Res> RES_MAP;
-
-    @SuppressWarnings("rawtypes")
-    public static void buildResourceMap(Class r) {
-        RES_MAP = new SparseArray<Theme.Res>();
-        Log.d(TAG, "Building resource map");
-        load(r, COLOR, "color");
-        load(r, DRAWABLE, "drawable");
-        load(r, BOOLEAN, "bool");
-        load(r, DIMEN, "dimen");
-        load(r, RAW, "raw");
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static void load(Class r, String label, String clazz) {
-        try {
-            Class loadedClazz = Class.forName(r.getName() + "$" + clazz);
-            for(Field f : loadedClazz.getFields()) {
-                try {
-                    RES_MAP.put(f.getInt(null), new Res(label, f.getName()));
-                }
-                catch(IllegalArgumentException e) {
-                    Log.e(TAG, "Reflection failed", e);
-                }
-                catch(IllegalAccessException e) {
-                    Log.e(TAG, "Reflection failed", e);
-                }
-            }
-            Log.d(TAG, clazz + " loaded");
-        }
-        catch(ClassNotFoundException e) {
-            // Do nothing
-        }
-    }
 
     public static Context getThemeContext(Context context) {
         try {
@@ -111,7 +76,7 @@ public class Theme {
      * Gets string from theme apk
      */
     public static String getString(Context context, int resId) {
-        return getString(context, Theme.get(resId));
+        return getString(context, Theme.get(context, resId));
     }
 
     /**
@@ -134,7 +99,7 @@ public class Theme {
      * Gets boolean from theme apk
      */
     public static Boolean getBoolean(Context context, int resId) {
-        return getBoolean(context, Theme.get(resId));
+        return getBoolean(context, Theme.get(context, resId));
     }
 
     /**
@@ -163,7 +128,7 @@ public class Theme {
      * Gets dimen from theme apk
      */
     public static Float getDimen(Context context, int resId) {
-        return getDimen(context, Theme.get(resId));
+        return getDimen(context, Theme.get(context, resId));
     }
 
     /**
@@ -192,7 +157,7 @@ public class Theme {
      * Gets drawable from theme apk
      */
     public static Drawable getDrawable(Context context, int resId) {
-        return getDrawable(context, Theme.get(resId));
+        return getDrawable(context, Theme.get(context, resId));
     }
 
     /**
@@ -226,7 +191,7 @@ public class Theme {
      * Gets color from theme apk
      */
     public static int getColor(Context context, int resId) {
-        return getColor(context, Theme.get(resId));
+        return getColor(context, Theme.get(context, resId));
     }
 
     /**
@@ -257,7 +222,7 @@ public class Theme {
      * Gets color from theme apk
      */
     public static ColorStateList getColorStateList(Context context, int resId) {
-        return getColorStateList(context, Theme.get(resId));
+        return getColorStateList(context, Theme.get(context, resId));
     }
 
     /**
@@ -354,8 +319,8 @@ public class Theme {
         PACKAGE_NAME = packageName;
     }
 
-    public static Res get(int resId) {
-        return RES_MAP.get(resId);
+    public static Res get(Context context, int resId) {
+        return new Res(context.getResources().getResourceTypeName(resId), context.getResources().getResourceName(resId));
     }
 
     public static String getSoundPath(Context context, Res res) {
