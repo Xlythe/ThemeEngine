@@ -2,8 +2,7 @@ ThemeEngine
 ===========
 A library for grabbing images, fonts, and colors from another apk.
 
-The main app must make the following two calls before setContentView. This is only needed in the very first Activity.
-    Theme.buildResourceMap(R.color.class, R.drawable.class, R.raw.class);
+The main app must make the following call before setContentView. This is only needed in the very first Activity.
     Theme.setPackageName(MY_THEME_PACKAGE_NAME);
 
 Then you can either automatically grab the images and colors via ThemedView in xml or programmaically set them in java.
