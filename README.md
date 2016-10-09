@@ -27,8 +27,8 @@ Then you can either automatically grab the images and colors via ThemedView in x
 ```
 or
 ```java
-    TextView tv = new TextView(this);
-    tv.setTextColor(Theme.getColor(this, R.color.text_color));
+TextView tv = new TextView(this);
+tv.setTextColor(Theme.getColor(this, R.color.text_color));
 ```
 
 The library also includes a ThemePreference. This preference will query for all installed themes and let the user select one. You can then set Theme.setPackageName via the PreferenceManager. A good default is your own package name.
@@ -36,8 +36,8 @@ The library also includes a ThemePreference. This preference will query for all 
 
 As for the theme apk, it's job is simple. It requires no java code. For starters, add the following intent filter to any activity in the Activity Manifest.
 ```xml
-    <intent-filter>
-        <action android:name="com.example.myapp.THEME" /> <!-- Change com.example.myapp to your main app's package name -->
-    </intent-filter>
+<intent-filter>
+    <action android:name="com.example.myapp.THEME" /> <!-- Change com.example.myapp to your main app's package name -->
+</intent-filter>
 ```
 Then add in any drawables and colors you want to replace. Just name them the same as they are in the main app. For custom fonts, add a font file called "font" to /assets.
