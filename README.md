@@ -1,6 +1,8 @@
 ThemeEngine
 ===========
 
+A library for grabbing images, fonts, and colors from another apk.
+
 Where to Download
 -----------------
 ```groovy
@@ -9,8 +11,8 @@ dependencies {
 }
 ```
 
-A library for grabbing images, fonts, and colors from another apk.
-
+How to Use
+-----------------
 The main app must make the following call before setContentView. This is only needed in the very first Activity.
     Theme.setPackageName(MY_THEME_PACKAGE_NAME);
 
