@@ -1,5 +1,14 @@
 ThemeEngine
 ===========
+
+Where to Download
+-----------------
+```groovy
+dependencies {
+  compile 'com.xlythe:theme-engine:1.0.0'
+}
+```
+
 A library for grabbing images, fonts, and colors from another apk.
 
 The main app must make the following call before setContentView. This is only needed in the very first Activity.
