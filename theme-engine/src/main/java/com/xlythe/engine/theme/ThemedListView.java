@@ -1,8 +1,10 @@
 package com.xlythe.engine.theme;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
@@ -22,10 +24,16 @@ public class ThemedListView extends ListView {
         setup(context, attrs);
     }
 
+    @TargetApi(21)
+    public ThemedListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        setup(context, attrs);
+    }
+
     private void setup(Context context, AttributeSet attrs) {
-        if(attrs != null) {
+        if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
-            if(a != null) {
+            if (a != null) {
                 // Get divider
                 setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themeDivider, 0)));
 
@@ -37,13 +45,12 @@ public class ThemedListView extends ListView {
         }
     }
 
-    public void setDivider(Theme.Res res) {
-        if(res != null) {
-            if(Theme.DRAWABLE.equals(res.getType())) {
+    public void setDivider(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.DRAWABLE.equals(res.getType())) {
                 try {
                     setDivider(Theme.getDrawable(getContext(), res.getName()));
-                }
-                catch(Exception e) {
+                } catch (Exception e) {
                     // Not supported on some phones...
                     e.printStackTrace();
                 }
@@ -53,16 +60,14 @@ public class ThemedListView extends ListView {
 
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
-    public void setBackground(Theme.Res res) {
-        if(res != null) {
-            if(Theme.COLOR.equals(res.getType())) {
+    public void setBackground(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
                 setBackgroundColor(Theme.getColor(getContext(), res.getName()));
-            }
-            else if(Theme.DRAWABLE.equals(res.getType())) {
-                if(android.os.Build.VERSION.SDK_INT < 16) {
+            } else if (Theme.DRAWABLE.equals(res.getType())) {
+                if (android.os.Build.VERSION.SDK_INT < 16) {
                     setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
-                }
-                else {
+                } else {
                     setBackground(Theme.getDrawable(getContext(), res.getName()));
                 }
             }

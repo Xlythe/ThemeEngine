@@ -1,15 +1,5 @@
 package com.xlythe.engine.theme;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,29 +14,48 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
-public class Theme {
-    private static final String TAG = "Theme";
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+public class Theme {
     public static final String COLOR = "color";
     public static final String RAW = "raw";
     public static final String DRAWABLE = "drawable";
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
     public static final String DIMEN = "dimen";
+    private static final String TAG = "Theme";
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<>();
     private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<>(100);
     private static final LruCache<String, Integer> COLOR_MAP = new LruCache<>(100);
     private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<>(100);
     private static String PACKAGE_NAME;
+    private static String PACKAGE_OVERRIDE;
+
+    /**
+     * Allows you to proxy as another application
+     *
+     * @param packageOverride The package name of the app you're proxying
+     */
+    public static void setPackageOverride(String packageOverride) {
+        PACKAGE_OVERRIDE = packageOverride;
+    }
 
     public static Context getThemeContext(Context context) {
         try {
             return context.createPackageContext(getPackageName(), Context.CONTEXT_INCLUDE_CODE + Context.CONTEXT_IGNORE_SECURITY);
-        }
-        catch(NameNotFoundException e) {
+        } catch (NameNotFoundException e) {
             Log.e(TAG, "Failed to create a context", e);
         }
         return null;
@@ -58,8 +67,7 @@ public class Theme {
     public static Resources getResources(Context context) {
         try {
             return context.getPackageManager().getResourcesForApplication(getPackageName());
-        }
-        catch(NameNotFoundException e) {
+        } catch (NameNotFoundException e) {
             Log.e(TAG, "Failed to get " + getPackageName() + "'s resources. Returning resources from the context instead.", e);
             return context.getResources();
         }
@@ -91,7 +99,7 @@ public class Theme {
      */
     public static String getString(Context context, String name) {
         int id = getId(context, STRING, name);
-        if(id == 0) return null;
+        if (id == 0) return null;
         return getResources(context).getString(id);
     }
 
@@ -114,12 +122,11 @@ public class Theme {
      */
     public static Boolean getBoolean(Context context, String name) {
         int id = getId(context, BOOLEAN, name);
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(name, BOOLEAN, context.getPackageName());
-            if(id != 0) {
+            if (id != 0) {
                 return context.getResources().getBoolean(id);
-            }
-            else return null;
+            } else return null;
         }
         return getResources(context).getBoolean(id);
     }
@@ -143,12 +150,11 @@ public class Theme {
      */
     public static Float getDimen(Context context, String name) {
         int id = getId(context, DIMEN, name);
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(name, DIMEN, context.getPackageName());
-            if(id != 0) {
+            if (id != 0) {
                 return context.getResources().getDimension(id);
-            }
-            else return null;
+            } else return null;
         }
         return getResources(context).getDimension(id);
     }
@@ -171,17 +177,16 @@ public class Theme {
      * Gets drawable from theme apk
      */
     public static Drawable getDrawable(Context context, String name) {
-        if(DRAWABLE_MAP.get(getKey(context) + "_" + name) != null) {
+        if (DRAWABLE_MAP.get(getKey(context) + "_" + name) != null) {
             return DRAWABLE_MAP.get(getKey(context) + "_" + name).getConstantState().newDrawable();
         }
         int id = getId(context, DRAWABLE, name);
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(name, DRAWABLE, context.getPackageName());
-            if(id != 0) {
+            if (id != 0) {
                 DRAWABLE_MAP.put(getKey(context) + "_" + name, context.getResources().getDrawable(id));
                 return DRAWABLE_MAP.get(getKey(context) + "_" + name);
-            }
-            else return null;
+            } else return null;
         }
         DRAWABLE_MAP.put(getKey(context) + "_" + name, getResources(context).getDrawable(id));
         return DRAWABLE_MAP.get(getKey(context) + "_" + name);
@@ -205,11 +210,11 @@ public class Theme {
      * Gets color from theme apk
      */
     public static int getColor(Context context, String name) {
-        if(COLOR_MAP.get(getKey(context) + "_" + name) != null) {
+        if (COLOR_MAP.get(getKey(context) + "_" + name) != null) {
             return COLOR_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
             COLOR_MAP.put(getKey(context) + "_" + name, context.getResources().getColor(id));
             return COLOR_MAP.get(getKey(context) + "_" + name);
@@ -236,11 +241,11 @@ public class Theme {
      * Gets color from theme apk
      */
     public static ColorStateList getColorStateList(Context context, String name) {
-        if(COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name) != null) {
+        if (COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name) != null) {
             return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
         }
         int id = getId(context, COLOR, name);
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
             COLOR_STATE_LIST_MAP.put(getKey(context) + "_" + name, context.getResources().getColorStateList(id));
             return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
@@ -254,20 +259,17 @@ public class Theme {
      */
     public static int getTheme(Context context) {
         int id = getId(context, "string", "app_theme");
-        if(id == 0) return 0;
+        if (id == 0) return 0;
 
         String fieldName = getResources(context).getString(id).replace(".", "_");
         try {
             Field field = android.R.style.class.getField(fieldName);
             return field.getInt(null);
-        }
-        catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             Log.e(TAG, "Ignoring runtime exception.", e);
-        }
-        catch(NoSuchFieldException e) {
+        } catch (NoSuchFieldException e) {
             Log.e(TAG, "Reflection failed", e);
-        }
-        catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             Log.e(TAG, "Reflection failed", e);
         }
         return 0;
@@ -278,20 +280,17 @@ public class Theme {
      */
     public static int getSettingsTheme(Context context) {
         int id = getId(context, "string", "app_settings_theme");
-        if(id == 0) return 0;
+        if (id == 0) return 0;
 
         String fieldName = getResources(context).getString(id).replace(".", "_");
         try {
             Field field = android.R.style.class.getField(fieldName);
             return field.getInt(null);
-        }
-        catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             e.printStackTrace();
-        }
-        catch(NoSuchFieldException e) {
+        } catch (NoSuchFieldException e) {
             e.printStackTrace();
-        }
-        catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         return 0;
@@ -302,11 +301,10 @@ public class Theme {
      */
     public static boolean isLightTheme(Context context) {
         int id = getId(context, "string", "app_theme");
-        if(id != 0) {
+        if (id != 0) {
             String fieldName = getResources(context).getString(id).replace(".", "_");
             return fieldName.toLowerCase(Locale.US).contains("light");
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -319,13 +317,17 @@ public class Theme {
         PACKAGE_NAME = packageName;
     }
 
+    @Nullable
     public static Res get(Context context, int resId) {
-        return new Res(context.getResources().getResourceTypeName(resId), context.getResources().getResourceName(resId));
+        if (resId == 0) {
+            return null;
+        }
+        return new Res(context.getResources().getResourceTypeName(resId), context.getResources().getResourceEntryName(resId));
     }
 
     public static String getSoundPath(Context context, Res res) {
         int id = getId(context, res.getType(), res.getName());
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(res.getName(), res.getType(), context.getPackageName());
             return "android.resource://" + context.getPackageName() + "/" + id;
         }
@@ -334,7 +336,7 @@ public class Theme {
 
     public static int getSound(Context context, SoundPool soundPool, Res res) {
         int id = getId(context, res.getType(), res.getName());
-        if(id == 0) {
+        if (id == 0) {
             id = context.getResources().getIdentifier(res.getName(), res.getType(), context.getPackageName());
             return soundPool.load(context, id, 1);
         }
@@ -347,24 +349,20 @@ public class Theme {
         try {
             AssetFileDescriptor afd;
             int id = getId(context, res.getType(), res.getName());
-            if(id == 0) {
+            if (id == 0) {
                 id = context.getResources().getIdentifier(res.getName(), res.getType(), context.getPackageName());
                 afd = context.getResources().openRawResourceFd(id);
-            }
-            else {
+            } else {
                 afd = getThemeContext(context).getResources().openRawResourceFd(id);
             }
             mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             afd.close();
             mp.prepare();
             millis = mp.getDuration();
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             mp.release();
-            mp = null;
         }
         return millis;
     }
@@ -373,18 +371,20 @@ public class Theme {
         TYPEFACE_MAP.put(getKey(context) + "_" + "font", typeface);
     }
 
+    @Nullable
     public static Typeface getFont(Context context) {
         return getFont(context, "font");
     }
 
+    @Nullable
     public static Typeface getFont(Context context, String name) {
         String key = getKey(context) + "_" + name;
-        if(TYPEFACE_MAP.containsKey(key)) {
+        if (TYPEFACE_MAP.containsKey(key)) {
             return TYPEFACE_MAP.get(key);
         }
 
-        String[] extensions = { ".ttf", ".otf" };
-        for(String s : extensions) {
+        String[] extensions = {".ttf", ".otf"};
+        for (String s : extensions) {
             try {
                 // Use cursor loader to grab font
                 Uri uri = Uri.parse("content://" + getPackageName() + ".FileProvider/" + name + s);
@@ -397,7 +397,7 @@ public class Theme {
                 FileOutputStream fOutput = new FileOutputStream(file);
                 byte[] dataBuffer = new byte[1024];
                 int readLength = 0;
-                while((readLength = in.read(dataBuffer)) != -1) {
+                while ((readLength = in.read(dataBuffer)) != -1) {
                     fOutput.write(dataBuffer, 0, readLength);
                 }
                 in.close();
@@ -407,21 +407,19 @@ public class Theme {
                 Typeface t = Typeface.createFromFile(file);
                 TYPEFACE_MAP.put(key, t);
                 return TYPEFACE_MAP.get(key);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 // Do nothing
             }
         }
 
         AssetManager am = context.getResources().getAssets();
-        for(String s : extensions) {
+        for (String s : extensions) {
             try {
                 // Try/catch for broken fonts
                 Typeface t = Typeface.createFromAsset(am, name + s);
                 TYPEFACE_MAP.put(key, t);
                 return TYPEFACE_MAP.get(key);
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 // Do nothing
             }
         }
@@ -433,26 +431,26 @@ public class Theme {
      * Returns a list of installed apps that are registered as themes
      */
     public static List<App> getApps(Context context) {
-        LinkedList<App> apps = new LinkedList<App>();
+        LinkedList<App> apps = new LinkedList<>();
         PackageManager manager = context.getPackageManager();
 
-        Intent mainIntent = new Intent(context.getPackageName() + ".THEME", null);
+        Intent mainIntent;
+        if (PACKAGE_OVERRIDE != null) {
+            mainIntent = new Intent(PACKAGE_OVERRIDE + ".THEME", null);
+        } else {
+            mainIntent = new Intent(context.getPackageName() + ".THEME", null);
+        }
 
         final List<ResolveInfo> infos;
         try {
             infos = manager.queryIntentActivities(mainIntent, 0);
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return apps;
         }
 
-        for(ResolveInfo info : infos) {
-            App app = new App();
-            apps.add(app);
-
-            app.setName(info.loadLabel(manager).toString());
-            app.setPackageName(info.activityInfo.applicationInfo.packageName);
+        for (ResolveInfo info : infos) {
+            apps.add(new App(info.loadLabel(manager).toString(), info.activityInfo.applicationInfo.packageName));
         }
         return apps;
     }
@@ -478,5 +476,9 @@ public class Theme {
             return name;
         }
 
+        @Override
+        public String toString() {
+            return String.format("Res{name=%s, type=%s", name, type);
+        }
     }
 }
