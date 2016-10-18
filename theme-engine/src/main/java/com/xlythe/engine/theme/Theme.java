@@ -14,7 +14,13 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.support.annotation.AnyRes;
+import android.support.annotation.BoolRes;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DimenRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -76,6 +82,7 @@ public class Theme {
     /**
      * Gets id from theme apk
      */
+    @AnyRes
     public static int getId(Context context, String type, String name) {
         return getResources(context).getIdentifier(name, type, getPackageName());
     }
@@ -83,7 +90,7 @@ public class Theme {
     /**
      * Gets string from theme apk
      */
-    public static String getString(Context context, int resId) {
+    public static String getString(Context context, @StringRes int resId) {
         return getString(context, Theme.get(context, resId));
     }
 
@@ -106,7 +113,7 @@ public class Theme {
     /**
      * Gets boolean from theme apk
      */
-    public static Boolean getBoolean(Context context, int resId) {
+    public static Boolean getBoolean(Context context, @BoolRes int resId) {
         return getBoolean(context, Theme.get(context, resId));
     }
 
@@ -134,7 +141,7 @@ public class Theme {
     /**
      * Gets dimen from theme apk
      */
-    public static Float getDimen(Context context, int resId) {
+    public static Float getDimen(Context context, @DimenRes int resId) {
         return getDimen(context, Theme.get(context, resId));
     }
 
@@ -162,7 +169,7 @@ public class Theme {
     /**
      * Gets drawable from theme apk
      */
-    public static Drawable getDrawable(Context context, int resId) {
+    public static Drawable getDrawable(Context context, @DrawableRes int resId) {
         return getDrawable(context, Theme.get(context, resId));
     }
 
@@ -195,7 +202,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
-    public static int getColor(Context context, int resId) {
+    public static int getColor(Context context, @ColorRes int resId) {
         return getColor(context, Theme.get(context, resId));
     }
 
@@ -226,7 +233,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
-    public static ColorStateList getColorStateList(Context context, int resId) {
+    public static ColorStateList getColorStateList(Context context, @ColorRes int resId) {
         return getColorStateList(context, Theme.get(context, resId));
     }
 
@@ -318,7 +325,7 @@ public class Theme {
     }
 
     @Nullable
-    public static Res get(Context context, int resId) {
+    public static Res get(Context context, @AnyRes int resId) {
         if (resId == 0) {
             return null;
         }
