@@ -38,7 +38,7 @@ public class ThemeListPreference extends ListPreference {
         CharSequence[] themeValue = new CharSequence[themes.size() + 1];
 
         // Set a default
-        themeEntry[0] = getContext().getString(R.string.preferences_option_default);
+        themeEntry[0] = getContext().getApplicationInfo().loadLabel(getContext().getPackageManager());
         themeValue[0] = getContext().getPackageName();
 
         // Add the rest to the preference
@@ -62,6 +62,6 @@ public class ThemeListPreference extends ListPreference {
                 return a.getName();
             }
         }
-        return getContext().getString(R.string.preferences_option_default);
+        return getContext().getApplicationInfo().loadLabel(getContext().getPackageManager()).toString();
     }
 }

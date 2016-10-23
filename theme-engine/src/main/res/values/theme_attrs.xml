@@ -7,6 +7,8 @@
         <attr name="src" format="reference" />
         <attr name="themeDivider" format="reference" />
         <attr name="themeBackground" format="reference" />
+        <attr name="progressDrawable" format="reference" />
+        <attr name="popupBackground" format="reference" />
         <attr name="font" format="string" />
     </declare-styleable>
 </resources>
