@@ -21,6 +21,7 @@ import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.support.annotation.UiThread;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
@@ -41,7 +42,9 @@ public class Theme {
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
     public static final String DIMEN = "dimen";
-    private static final String TAG = "Theme";
+
+    static final String TAG = "Theme";
+
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<>();
     private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<>(100);
     private static final LruCache<String, Integer> COLOR_MAP = new LruCache<>(100);
@@ -54,8 +57,14 @@ public class Theme {
      *
      * @param packageOverride The package name of the app you're proxying
      */
+    @UiThread
     public static void setPackageOverride(String packageOverride) {
         PACKAGE_OVERRIDE = packageOverride;
+    }
+
+    @UiThread
+    static String getPackageOverride() {
+        return PACKAGE_OVERRIDE;
     }
 
     public static Context getThemeContext(Context context) {
