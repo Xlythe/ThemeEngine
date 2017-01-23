@@ -34,6 +34,9 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
 
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        // Security
+        verifyCaller();
+
         // content providers that support open and openAssetFile should support queries for all
         // android.provider.OpenableColumns.
         int displayNameIndex = -1;
@@ -88,38 +91,8 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
         return "*/*";
     }
 
-    /**
-     * Only available on API 19+. Verifies that the caller is a supported theme.
-     */
-    private void verifyCaller() throws SecurityException {
-        if (Build.VERSION.SDK_INT < 19) {
-            return;
-        }
-
-        // We'll query for ourselves to see if we show up as an available theme for this caller.
-        String packageOverride = Theme.getPackageOverride();
-        try {
-            Theme.setPackageOverride(getCallingPackage());
-            List<App> apps = Theme.getApps(getContext());
-            for (App app : apps) {
-                if (app.getPackageName().equals(getContext().getPackageName())) {
-                    return;
-                }
-            }
-        } finally {
-            // Restore the original override (which may have been null)
-            Theme.setPackageOverride(packageOverride);
-        }
-
-        // If we got here, then we couldn't verify the caller.
-        throw new SecurityException("Caller [" + getCallingPackage() + "] is not a registered theme.");
-    }
-
     @Override
     public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
-        // Security
-        verifyCaller();
-
         // Try to open an asset with the given name.
         try {
             InputStream is = getContext().getAssets().open(uri.getPath().substring(1));
@@ -155,5 +128,32 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
                 Log.e(TAG, "Failed to close output stream", e);
             }
         }
+    }
+
+    /**
+     * Only available on API 19+. Verifies that the caller is a supported theme.
+     */
+    private void verifyCaller() throws SecurityException {
+        if (Build.VERSION.SDK_INT < 19) {
+            return;
+        }
+
+        // We'll query for ourselves to see if we show up as an available theme for this caller.
+        String packageOverride = Theme.getPackageOverride();
+        try {
+            Theme.setPackageOverride(getCallingPackage());
+            List<App> apps = Theme.getApps(getContext());
+            for (App app : apps) {
+                if (app.getPackageName().equals(getContext().getPackageName())) {
+                    return;
+                }
+            }
+        } finally {
+            // Restore the original override (which may have been null)
+            Theme.setPackageOverride(packageOverride);
+        }
+
+        // If we got here, then we couldn't verify the caller.
+        throw new SecurityException("Caller [" + getCallingPackage() + "] is not a registered theme.");
     }
 }
