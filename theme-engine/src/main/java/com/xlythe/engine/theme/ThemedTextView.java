@@ -51,7 +51,7 @@ public class ThemedTextView extends TextView {
                 setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
                 // Get custom font
-                setFont(a.getString(R.styleable.theme_font));
+                setFont(a.getString(R.styleable.theme_themeFont));
 
                 a.recycle();
             }
