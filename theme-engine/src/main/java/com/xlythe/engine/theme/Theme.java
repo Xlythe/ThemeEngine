@@ -14,11 +14,13 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.AnyRes;
 import android.support.annotation.BoolRes;
 import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.FontRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
@@ -37,6 +39,7 @@ import java.util.Map;
 
 public class Theme {
     public static final String COLOR = "color";
+    public static final String FONT = "font";
     public static final String RAW = "raw";
     public static final String DRAWABLE = "drawable";
     public static final String STRING = "string";
@@ -388,6 +391,16 @@ public class Theme {
     }
 
     @Nullable
+    public static Typeface getFont(Context context, @FontRes int resId) {
+        return getFont(context, Theme.get(context, resId));
+    }
+
+    @Nullable
+    public static Typeface getFont(Context context, Res res) {
+        return getFont(context, res.getName());
+    }
+
+    @Nullable
     public static Typeface getFont(Context context) {
         return getFont(context, "font");
     }
@@ -397,6 +410,14 @@ public class Theme {
         String key = getKey(context) + "_" + name;
         if (TYPEFACE_MAP.containsKey(key)) {
             return TYPEFACE_MAP.get(key);
+        }
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            int id = getId(context, FONT, name);
+            if (id != 0) {
+                TYPEFACE_MAP.put(key, getResources(context).getFont(id));
+                return TYPEFACE_MAP.get(key);
+            }
         }
 
         String[] extensions = {".ttf", ".otf"};
@@ -428,6 +449,14 @@ public class Theme {
             }
         }
 
+        if (Build.VERSION.SDK_INT >= 26) {
+            int id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
+            if (id != 0) {
+                TYPEFACE_MAP.put(key, context.getResources().getFont(id));
+                return TYPEFACE_MAP.get(key);
+            }
+        }
+
         AssetManager am = context.getResources().getAssets();
         for (String s : extensions) {
             try {
@@ -439,6 +468,8 @@ public class Theme {
                 // Do nothing
             }
         }
+
+        // No typeface was found.
         TYPEFACE_MAP.put(key, null);
         return TYPEFACE_MAP.get(key);
     }

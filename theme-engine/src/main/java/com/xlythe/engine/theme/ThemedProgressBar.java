@@ -3,6 +3,7 @@ package com.xlythe.engine.theme;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
@@ -44,7 +45,7 @@ public class ThemedProgressBar extends ProgressBar {
             if (Theme.COLOR.equals(res.getType())) {
                 setBackgroundColor(Theme.getColor(getContext(), res.getName()));
             } else if (Theme.DRAWABLE.equals(res.getType())) {
-                if (android.os.Build.VERSION.SDK_INT < 16) {
+                if (Build.VERSION.SDK_INT < 16) {
                     setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
                 } else {
                     setBackground(Theme.getDrawable(getContext(), res.getName()));

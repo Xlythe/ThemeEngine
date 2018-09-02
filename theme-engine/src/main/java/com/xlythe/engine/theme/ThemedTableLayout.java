@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.TableLayout;
@@ -49,7 +50,7 @@ public class ThemedTableLayout extends TableLayout {
     public void setDivider(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
-                if (android.os.Build.VERSION.SDK_INT >= 11) {
+                if (Build.VERSION.SDK_INT >= 11) {
                     setDividerDrawable(Theme.getDrawable(getContext(), res.getName()));
                 }
             }
@@ -63,7 +64,7 @@ public class ThemedTableLayout extends TableLayout {
             if (Theme.COLOR.equals(res.getType())) {
                 setBackgroundColor(Theme.getColor(getContext(), res.getName()));
             } else if (Theme.DRAWABLE.equals(res.getType())) {
-                if (android.os.Build.VERSION.SDK_INT < 16) {
+                if (Build.VERSION.SDK_INT < 16) {
                     setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
                 } else {
                     setBackground(Theme.getDrawable(getContext(), res.getName()));

@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.Display;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -22,7 +23,7 @@ public class UIUtil {
     @SuppressWarnings("deprecation")
     public static void flipBackground(View v) {
         Drawable flipped = flipDrawable(v.getContext(), v.getBackground());
-        if (android.os.Build.VERSION.SDK_INT >= 16) {
+        if (Build.VERSION.SDK_INT >= 16) {
             v.setBackground(flipped);
         } else {
             v.setBackgroundDrawable(flipped);
@@ -65,7 +66,7 @@ public class UIUtil {
     @SuppressWarnings("deprecation")
     public static int getWindowHeight(Context context) {
         Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        if (android.os.Build.VERSION.SDK_INT >= 13) {
+        if (Build.VERSION.SDK_INT >= 13) {
             Point size = new Point();
             display.getSize(size);
             size.y -= getStatusBarHeight(context);
@@ -88,7 +89,7 @@ public class UIUtil {
     @SuppressWarnings("deprecation")
     public static int getWindowWidth(Context context) {
         Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        if (android.os.Build.VERSION.SDK_INT >= 13) {
+        if (Build.VERSION.SDK_INT >= 13) {
             Point size = new Point();
             display.getSize(size);
             return size.x;

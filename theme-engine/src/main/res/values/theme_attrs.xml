@@ -9,6 +9,6 @@
         <attr name="themeBackground" format="reference" />
         <attr name="progressDrawable" format="reference" />
         <attr name="popupBackground" format="reference" />
-        <attr name="themeFont" format="string" />
+        <attr name="themeFont" format="reference|string" />
     </declare-styleable>
 </resources>
