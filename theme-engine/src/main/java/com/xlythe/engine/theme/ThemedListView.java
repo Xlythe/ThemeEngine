@@ -77,4 +77,24 @@ public class ThemedListView extends ListView {
             }
         }
     }
+
+    @UiThread
+    public void setWidth(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.DIMEN.equals(res.getType())) {
+                getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+                requestLayout();
+            }
+        }
+    }
+
+    @UiThread
+    public void setHeight(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.DIMEN.equals(res.getType())) {
+                getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+                requestLayout();
+            }
+        }
+    }
 }

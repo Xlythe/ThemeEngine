@@ -145,7 +145,7 @@ public class ThemedButton extends Button {
     }
 
     @UiThread
-    public void setWidth(Theme.Res res) {
+    public void setWidth(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
                 getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
@@ -155,7 +155,7 @@ public class ThemedButton extends Button {
     }
 
     @UiThread
-    public void setHeight(Theme.Res res) {
+    public void setHeight(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
                 getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();

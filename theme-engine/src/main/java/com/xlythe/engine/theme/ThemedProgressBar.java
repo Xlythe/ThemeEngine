@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
@@ -61,6 +62,26 @@ public class ThemedProgressBar extends ProgressBar {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
                 setProgressDrawable(Theme.getDrawable(getContext(), res.getName()));
+            }
+        }
+    }
+
+    @UiThread
+    public void setWidth(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.DIMEN.equals(res.getType())) {
+                getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+                requestLayout();
+            }
+        }
+    }
+
+    @UiThread
+    public void setHeight(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.DIMEN.equals(res.getType())) {
+                getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+                requestLayout();
             }
         }
     }
