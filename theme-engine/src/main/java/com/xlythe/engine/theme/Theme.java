@@ -23,6 +23,7 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FontRes;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
@@ -103,6 +104,7 @@ public class Theme {
         return PACKAGE_OVERRIDE;
     }
 
+    @UiThread
     public static Context getThemeContext(Context context) {
         try {
             return context.createPackageContext(getPackageName(), Context.CONTEXT_INCLUDE_CODE + Context.CONTEXT_IGNORE_SECURITY);
@@ -115,6 +117,7 @@ public class Theme {
     /**
      * Grabs the Resources from packageName
      */
+    @UiThread
     public static Resources getResources(Context context) {
         try {
             Resources resources = context.getPackageManager().getResourcesForApplication(getPackageName());
@@ -153,6 +156,7 @@ public class Theme {
     /**
      * Gets id from theme apk
      */
+    @UiThread
     @AnyRes
     public static int getId(Context context, String type, String name) {
         return getResources(context).getIdentifier(name, type, getPackageName());
@@ -161,6 +165,7 @@ public class Theme {
     /**
      * Gets string from theme apk
      */
+    @UiThread
     public static String getString(Context context, @StringRes int resId) {
         return getString(context, Theme.get(context, resId));
     }
@@ -168,6 +173,7 @@ public class Theme {
     /**
      * Gets string from theme apk
      */
+    @UiThread
     public static String getString(Context context, Res res) {
         return getString(context, res.getName());
     }
@@ -175,6 +181,7 @@ public class Theme {
     /**
      * Gets string from theme apk
      */
+    @UiThread
     public static String getString(Context context, String name) {
         int id = getId(context, STRING, name);
         if (id == 0) return null;
@@ -184,6 +191,7 @@ public class Theme {
     /**
      * Gets boolean from theme apk
      */
+    @UiThread
     public static Boolean getBoolean(Context context, @BoolRes int resId) {
         return getBoolean(context, Theme.get(context, resId));
     }
@@ -191,6 +199,7 @@ public class Theme {
     /**
      * Gets boolean from theme apk
      */
+    @UiThread
     public static Boolean getBoolean(Context context, Res res) {
         return getBoolean(context, res.getName());
     }
@@ -198,6 +207,7 @@ public class Theme {
     /**
      * Gets boolean from theme apk
      */
+    @UiThread
     public static Boolean getBoolean(Context context, String name) {
         int id = getId(context, BOOLEAN, name);
         if (id == 0) {
@@ -212,6 +222,7 @@ public class Theme {
     /**
      * Gets dimen from theme apk
      */
+    @UiThread
     public static Float getDimen(Context context, @DimenRes int resId) {
         return getDimen(context, Theme.get(context, resId));
     }
@@ -219,6 +230,7 @@ public class Theme {
     /**
      * Gets dimen from theme apk
      */
+    @UiThread
     public static Float getDimen(Context context, Res res) {
         return getDimen(context, res.getName());
     }
@@ -226,6 +238,7 @@ public class Theme {
     /**
      * Gets dimen from theme apk
      */
+    @UiThread
     public static Float getDimen(Context context, String name) {
         int id = getId(context, DIMEN, name);
         if (id == 0) {
@@ -240,6 +253,7 @@ public class Theme {
     /**
      * Gets drawable from theme apk
      */
+    @UiThread
     public static Drawable getDrawable(Context context, @DrawableRes int resId) {
         return getDrawable(context, Theme.get(context, resId));
     }
@@ -247,6 +261,7 @@ public class Theme {
     /**
      * Gets drawable from theme apk
      */
+    @UiThread
     public static Drawable getDrawable(Context context, Res res) {
         return getDrawable(context, res.getName());
     }
@@ -254,6 +269,7 @@ public class Theme {
     /**
      * Gets drawable from theme apk
      */
+    @UiThread
     public static Drawable getDrawable(Context context, String name) {
         String key = getKey(context) + "_" + name;
         if (DRAWABLE_MAP.get(key) != null) {
@@ -274,6 +290,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static int getColor(Context context, @ColorRes int resId) {
         return getColor(context, Theme.get(context, resId));
     }
@@ -281,6 +298,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static int getColor(Context context, Res res) {
         return getColor(context, res.getName());
     }
@@ -288,6 +306,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static int getColor(Context context, String name) {
         String key = getKey(context) + "_" + name;
         if (COLOR_MAP.get(key) != null) {
@@ -306,6 +325,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static ColorStateList getColorStateList(Context context, @ColorRes int resId) {
         return getColorStateList(context, Theme.get(context, resId));
     }
@@ -313,6 +333,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static ColorStateList getColorStateList(Context context, Res res) {
         return getColorStateList(context, res.getName());
     }
@@ -320,6 +341,7 @@ public class Theme {
     /**
      * Gets color from theme apk
      */
+    @UiThread
     public static ColorStateList getColorStateList(Context context, String name) {
         String key = getKey(context) + "_" + name;
         if (COLOR_STATE_LIST_MAP.get(key) != null) {
@@ -338,6 +360,7 @@ public class Theme {
     /**
      * Gets android theme from theme apk. Can be 0 (no theme).
      */
+    @UiThread
     public static int getTheme(Context context) {
         int id = getId(context, "string", "app_theme");
         if (id == 0) return 0;
@@ -359,6 +382,7 @@ public class Theme {
     /**
      * Gets android theme from theme apk. Can be 0 (no theme). This is for apps that want an actionbar in their Settings but not in their main app.
      */
+    @UiThread
     public static int getSettingsTheme(Context context) {
         int id = getId(context, "string", "app_settings_theme");
         if (id == 0) return 0;
@@ -380,6 +404,7 @@ public class Theme {
     /**
      * Returns whether the theme is light or dark. WARNING: Assumes dark if no resource is found.
      */
+    @UiThread
     public static boolean isLightTheme(Context context) {
         int id = getId(context, "string", "app_theme");
         if (id != 0) {
@@ -390,14 +415,17 @@ public class Theme {
         }
     }
 
+    @UiThread
     public static String getPackageName() {
         return PACKAGE_NAME;
     }
 
+    @UiThread
     public static void setPackageName(String packageName) {
         PACKAGE_NAME = packageName;
     }
 
+    @UiThread
     @Nullable
     public static Res get(Context context, @AnyRes int resId) {
         if (resId == 0) {
@@ -406,6 +434,7 @@ public class Theme {
         return new Res(context.getResources().getResourceTypeName(resId), context.getResources().getResourceEntryName(resId));
     }
 
+    @UiThread
     public static String getSoundPath(Context context, Res res) {
         int id = getId(context, res.getType(), res.getName());
         if (id == 0) {
@@ -415,6 +444,7 @@ public class Theme {
         return "android.resource://" + getPackageName() + "/" + id;
     }
 
+    @UiThread
     public static int getSound(Context context, SoundPool soundPool, Res res) {
         int id = getId(context, res.getType(), res.getName());
         if (id == 0) {
@@ -424,6 +454,7 @@ public class Theme {
         return soundPool.load(getThemeContext(context), id, 1);
     }
 
+    @UiThread
     public static long getDurationOfSound(Context context, Theme.Res res) {
         int millis = 0;
         MediaPlayer mp = new MediaPlayer();
@@ -448,25 +479,30 @@ public class Theme {
         return millis;
     }
 
+    @UiThread
     public static void setFont(Context context, Typeface typeface) {
         TYPEFACE_MAP.put(getKey(context) + "_" + "font", typeface);
     }
 
+    @UiThread
     @Nullable
     public static Typeface getFont(Context context, @FontRes int resId) {
         return getFont(context, Theme.get(context, resId));
     }
 
+    @UiThread
     @Nullable
     public static Typeface getFont(Context context, Res res) {
         return getFont(context, res.getName());
     }
 
+    @UiThread
     @Nullable
     public static Typeface getFont(Context context) {
         return getFont(context, "font");
     }
 
+    @UiThread
     @Nullable
     public static Typeface getFont(Context context, String name) {
         String key = getKey(context) + "_" + name;
@@ -539,6 +575,7 @@ public class Theme {
     /**
      * Returns a list of installed apps that are registered as themes
      */
+    @UiThread
     public static List<App> getApps(Context context) {
         List<App> apps = new LinkedList<>();
         PackageManager manager = context.getPackageManager();

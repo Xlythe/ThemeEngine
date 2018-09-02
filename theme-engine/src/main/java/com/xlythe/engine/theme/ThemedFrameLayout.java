@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
@@ -36,6 +37,7 @@ public class ThemedFrameLayout extends FrameLayout {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(Theme.Res res) {

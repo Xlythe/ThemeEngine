@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.RadioGroup;
 
@@ -34,6 +35,7 @@ public class ThemedRadioGroup extends RadioGroup {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     public void setDivider(@Nullable Theme.Res res) {
         if (res != null) {
@@ -45,6 +47,7 @@ public class ThemedRadioGroup extends RadioGroup {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(@Nullable Theme.Res res) {

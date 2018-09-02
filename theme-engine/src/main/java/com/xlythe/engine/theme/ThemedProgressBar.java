@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
 
@@ -38,6 +39,7 @@ public class ThemedProgressBar extends ProgressBar {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(Theme.Res res) {
@@ -54,6 +56,7 @@ public class ThemedProgressBar extends ProgressBar {
         }
     }
 
+    @UiThread
     public void setProgressDrawable(Theme.Res res) {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {

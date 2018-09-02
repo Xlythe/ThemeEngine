@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.Spinner;
 
@@ -40,6 +41,7 @@ public class ThemedSpinner extends Spinner {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(Theme.Res res) {
@@ -56,6 +58,7 @@ public class ThemedSpinner extends Spinner {
         }
     }
 
+    @UiThread
     @TargetApi(16)
     public void setPopupBackground(Theme.Res res) {
         if (res != null) {

@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.CheckBox;
@@ -72,6 +73,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setDefaultFont() {
         Typeface t = Theme.getFont(getContext());
         if (t != null) {
@@ -79,6 +81,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setFont(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.FONT.equals(res.getType())) {
@@ -90,6 +93,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setFont(@Nullable String font) {
         if (font != null) {
             Typeface t = Theme.getFont(getContext(), font);
@@ -99,6 +103,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -107,6 +112,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setHintTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -115,6 +121,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setLinkTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -123,6 +130,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     public void setButtonDrawable(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
@@ -131,6 +139,7 @@ public class ThemedCheckBox extends CheckBox {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(@Nullable Theme.Res res) {

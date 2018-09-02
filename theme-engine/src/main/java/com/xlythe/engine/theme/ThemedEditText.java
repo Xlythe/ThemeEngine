@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.EditText;
@@ -69,6 +70,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     public void setDefaultFont() {
         Typeface t = Theme.getFont(getContext());
         if (t != null) {
@@ -76,6 +78,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     public void setFont(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.FONT.equals(res.getType())) {
@@ -87,6 +90,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     @Deprecated
     public void setFont(@Nullable String font) {
         if (font != null) {
@@ -97,6 +101,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     public void setTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -105,6 +110,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     public void setHintTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -113,6 +119,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     public void setLinkTextColor(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
@@ -121,6 +128,7 @@ public class ThemedEditText extends EditText {
         }
     }
 
+    @UiThread
     @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void setBackground(@Nullable Theme.Res res) {
