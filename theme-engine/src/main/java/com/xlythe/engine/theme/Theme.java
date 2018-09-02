@@ -1,7 +1,9 @@
 package com.xlythe.engine.theme;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
@@ -26,16 +28,19 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.util.LruCache;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class Theme {
     public static final String COLOR = "color";
@@ -54,6 +59,34 @@ public class Theme {
     private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<>(100);
     private static String PACKAGE_NAME;
     private static String PACKAGE_OVERRIDE;
+
+    private static void clearCacheForPackage(Context context, String packageName) {
+        String prefix = getKey(context, packageName) + "_";
+        remove(TYPEFACE_MAP, prefix);
+        remove(DRAWABLE_MAP, prefix);
+        remove(COLOR_MAP, prefix);
+        remove(COLOR_STATE_LIST_MAP, prefix);
+    }
+
+    private static void remove(Map<String, ?> cache, String prefix) {
+        Set<String> keysToRemove = new HashSet<>();
+        for (String key : cache.keySet()) {
+            if (key.startsWith(prefix)) {
+                keysToRemove.add(key);
+            }
+        }
+        for (String key : keysToRemove) {
+            cache.remove(key);
+        }
+    }
+
+    private static void remove(LruCache<String, ?> cache, String prefix) {
+        for (String key : cache.snapshot().keySet()) {
+            if (key.startsWith(prefix)) {
+                cache.remove(key);
+            }
+        }
+    }
 
     /**
      * Allows you to proxy as another application
@@ -84,11 +117,37 @@ public class Theme {
      */
     public static Resources getResources(Context context) {
         try {
-            return context.getPackageManager().getResourcesForApplication(getPackageName());
+            Resources resources = context.getPackageManager().getResourcesForApplication(getPackageName());
+            registerReinstallReceiver(context, getPackageName());
+            return resources;
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Failed to get " + getPackageName() + "'s resources. Returning resources from the context instead.", e);
             return context.getResources();
         }
+    }
+
+    // When a theme package is reinstalled, we need to clear our caches of any stale resources from that app.
+    private static void registerReinstallReceiver(Context context, final String packageName) {
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String updatedPackageName = intent.getData().getEncodedSchemeSpecificPart();
+                if (!packageName.equals(updatedPackageName)) {
+                    // Ignored. Wrong app.
+                    return;
+                }
+
+                clearCacheForPackage(context, packageName);
+                context.getApplicationContext().unregisterReceiver(this);
+            }
+        };
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
+        intentFilter.addDataScheme("package");
+
+        context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
     }
 
     /**
@@ -506,7 +565,11 @@ public class Theme {
     }
 
     private static String getKey(Context context) {
-        return context.getPackageName() + "_" + getPackageName();
+        return getKey(context, getPackageName());
+    }
+
+    private static String getKey(Context context, String packageName) {
+        return context.getPackageName() + "_" + packageName;
     }
 
     public static class Res {
