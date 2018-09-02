@@ -196,19 +196,20 @@ public class Theme {
      * Gets drawable from theme apk
      */
     public static Drawable getDrawable(Context context, String name) {
-        if (DRAWABLE_MAP.get(getKey(context) + "_" + name) != null) {
-            return DRAWABLE_MAP.get(getKey(context) + "_" + name).getConstantState().newDrawable();
+        String key = getKey(context) + "_" + name;
+        if (DRAWABLE_MAP.get(key) != null) {
+            return DRAWABLE_MAP.get(key).getConstantState().newDrawable();
         }
         int id = getId(context, DRAWABLE, name);
         if (id == 0) {
             id = context.getResources().getIdentifier(name, DRAWABLE, context.getPackageName());
             if (id != 0) {
-                DRAWABLE_MAP.put(getKey(context) + "_" + name, context.getResources().getDrawable(id));
-                return DRAWABLE_MAP.get(getKey(context) + "_" + name);
+                DRAWABLE_MAP.put(key, context.getResources().getDrawable(id));
+                return DRAWABLE_MAP.get(key);
             } else return null;
         }
-        DRAWABLE_MAP.put(getKey(context) + "_" + name, getResources(context).getDrawable(id));
-        return DRAWABLE_MAP.get(getKey(context) + "_" + name);
+        DRAWABLE_MAP.put(key, getResources(context).getDrawable(id));
+        return DRAWABLE_MAP.get(key);
     }
 
     /**
@@ -229,17 +230,18 @@ public class Theme {
      * Gets color from theme apk
      */
     public static int getColor(Context context, String name) {
-        if (COLOR_MAP.get(getKey(context) + "_" + name) != null) {
-            return COLOR_MAP.get(getKey(context) + "_" + name);
+        String key = getKey(context) + "_" + name;
+        if (COLOR_MAP.get(key) != null) {
+            return COLOR_MAP.get(key);
         }
         int id = getId(context, COLOR, name);
         if (id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
-            COLOR_MAP.put(getKey(context) + "_" + name, context.getResources().getColor(id));
-            return COLOR_MAP.get(getKey(context) + "_" + name);
+            COLOR_MAP.put(key, context.getResources().getColor(id));
+            return COLOR_MAP.get(key);
         }
-        COLOR_MAP.put(getKey(context) + "_" + name, getResources(context).getColor(id));
-        return COLOR_MAP.get(getKey(context) + "_" + name);
+        COLOR_MAP.put(key, getResources(context).getColor(id));
+        return COLOR_MAP.get(key);
     }
 
     /**
@@ -260,17 +262,18 @@ public class Theme {
      * Gets color from theme apk
      */
     public static ColorStateList getColorStateList(Context context, String name) {
-        if (COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name) != null) {
-            return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
+        String key = getKey(context) + "_" + name;
+        if (COLOR_STATE_LIST_MAP.get(key) != null) {
+            return COLOR_STATE_LIST_MAP.get(key);
         }
         int id = getId(context, COLOR, name);
         if (id == 0) {
             id = context.getResources().getIdentifier(name, COLOR, context.getPackageName());
-            COLOR_STATE_LIST_MAP.put(getKey(context) + "_" + name, context.getResources().getColorStateList(id));
-            return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
+            COLOR_STATE_LIST_MAP.put(key, context.getResources().getColorStateList(id));
+            return COLOR_STATE_LIST_MAP.get(key);
         }
-        COLOR_STATE_LIST_MAP.put(getKey(context) + "_" + name, getResources(context).getColorStateList(id));
-        return COLOR_STATE_LIST_MAP.get(getKey(context) + "_" + name);
+        COLOR_STATE_LIST_MAP.put(key, getResources(context).getColorStateList(id));
+        return COLOR_STATE_LIST_MAP.get(key);
     }
 
     /**
@@ -478,7 +481,7 @@ public class Theme {
      * Returns a list of installed apps that are registered as themes
      */
     public static List<App> getApps(Context context) {
-        LinkedList<App> apps = new LinkedList<>();
+        List<App> apps = new LinkedList<>();
         PackageManager manager = context.getPackageManager();
 
         Intent mainIntent;
@@ -525,7 +528,7 @@ public class Theme {
 
         @Override
         public String toString() {
-            return String.format("Res{name=%s, type=%s", name, type);
+            return String.format("Res{name=%s, type=%s}", name, type);
         }
     }
 }

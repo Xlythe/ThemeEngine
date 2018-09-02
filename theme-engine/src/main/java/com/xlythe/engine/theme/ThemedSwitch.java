@@ -40,6 +40,15 @@ public class ThemedSwitch extends Switch {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
             if (a != null) {
+                // Get text color
+                setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColor, 0)));
+
+                // Get text hint color
+                setHintTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorHint, 0)));
+
+                // Get text link color
+                setLinkTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorLink, 0)));
+
                 // Get button
                 setButtonDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_button, 0)));
 
@@ -87,6 +96,30 @@ public class ThemedSwitch extends Switch {
             Typeface t = Theme.getFont(getContext(), font);
             if (t != null) {
                 setTypeface(t);
+            }
+        }
+    }
+
+    public void setTextColor(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
+                setTextColor(Theme.getColorStateList(getContext(), res.getName()));
+            }
+        }
+    }
+
+    public void setHintTextColor(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
+                setHintTextColor(Theme.getColorStateList(getContext(), res.getName()));
+            }
+        }
+    }
+
+    public void setLinkTextColor(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
+                setLinkTextColor(Theme.getColorStateList(getContext(), res.getName()));
             }
         }
     }

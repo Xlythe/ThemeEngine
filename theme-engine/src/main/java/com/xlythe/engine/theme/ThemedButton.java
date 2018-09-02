@@ -46,6 +46,9 @@ public class ThemedButton extends Button {
                 // Get text hint color
                 setHintTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorHint, 0)));
 
+                // Get text link color
+                setLinkTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorLink, 0)));
+
                 // Get background
                 setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
 
@@ -105,6 +108,14 @@ public class ThemedButton extends Button {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
                 setHintTextColor(Theme.getColorStateList(getContext(), res.getName()));
+            }
+        }
+    }
+
+    public void setLinkTextColor(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
+                setLinkTextColor(Theme.getColorStateList(getContext(), res.getName()));
             }
         }
     }
