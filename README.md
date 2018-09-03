@@ -7,7 +7,7 @@ Where to Download
 -----------------
 ```groovy
 dependencies {
-  compile 'com.xlythe:theme-engine:1.0.6'
+  implementation 'com.xlythe:theme-engine:1.0.7'
 }
 ```
 
