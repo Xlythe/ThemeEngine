@@ -6,11 +6,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.CheckBox;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 public class ThemedCheckBox extends CheckBox {
     public ThemedCheckBox(Context context) {

@@ -5,10 +5,11 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 public class ThemedLinearLayout extends LinearLayout {
     public ThemedLinearLayout(Context context) {
