@@ -533,7 +533,7 @@ public class Theme {
             try {
                 // Use cursor loader to grab font
                 Uri uri = Uri.parse("content://" + getPackageName() + ".FileProvider/" + name + s);
-                AssetFileDescriptor a = context.getContentResolver().openAssetFileDescriptor(uri, null);
+                AssetFileDescriptor a = context.getContentResolver().openAssetFileDescriptor(uri, "r");
                 FileInputStream in = new FileInputStream(a.getFileDescriptor());
                 in.skip(a.getStartOffset());
                 File file = new File(context.getCacheDir(), name + s);
