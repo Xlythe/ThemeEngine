@@ -23,13 +23,11 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DimenRes;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FontRes;
-import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.util.LruCache;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,8 +56,8 @@ public class Theme {
     private static final LruCache<String, Drawable> DRAWABLE_MAP = new LruCache<>(100);
     private static final LruCache<String, Integer> COLOR_MAP = new LruCache<>(100);
     private static final LruCache<String, ColorStateList> COLOR_STATE_LIST_MAP = new LruCache<>(100);
-    private static String PACKAGE_NAME;
-    private static String PACKAGE_OVERRIDE;
+    private static String sPackageName;
+    private static String sPackageOverride;
 
     private static Map<String, BroadcastReceiver> sAppTrackingReceivers = new HashMap<>();
 
@@ -99,12 +97,12 @@ public class Theme {
      */
     @UiThread
     public static void setPackageOverride(String packageOverride) {
-        PACKAGE_OVERRIDE = packageOverride;
+        sPackageOverride = packageOverride;
     }
 
     @UiThread
     static String getPackageOverride() {
-        return PACKAGE_OVERRIDE;
+        return sPackageOverride;
     }
 
     @UiThread
@@ -428,12 +426,12 @@ public class Theme {
 
     @UiThread
     public static String getPackageName() {
-        return PACKAGE_NAME;
+        return sPackageName;
     }
 
     @UiThread
     public static void setPackageName(String packageName) {
-        PACKAGE_NAME = packageName;
+        sPackageName = packageName;
     }
 
     @UiThread
@@ -592,8 +590,8 @@ public class Theme {
         PackageManager manager = context.getPackageManager();
 
         Intent mainIntent;
-        if (PACKAGE_OVERRIDE != null) {
-            mainIntent = new Intent(PACKAGE_OVERRIDE + ".THEME", null);
+        if (sPackageOverride != null) {
+            mainIntent = new Intent(sPackageOverride + ".THEME", null);
         } else {
             mainIntent = new Intent(context.getPackageName() + ".THEME", null);
         }
