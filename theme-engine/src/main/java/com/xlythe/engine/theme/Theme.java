@@ -61,12 +61,15 @@ public class Theme {
     private static String PACKAGE_NAME;
     private static String PACKAGE_OVERRIDE;
 
+    private static Map<String, BroadcastReceiver> sAppTrackingReceivers = new HashMap<>();
+
     private static void clearCacheForPackage(Context context, String packageName) {
         String prefix = getKey(context, packageName) + "_";
         remove(TYPEFACE_MAP, prefix);
         remove(DRAWABLE_MAP, prefix);
         remove(COLOR_MAP, prefix);
         remove(COLOR_STATE_LIST_MAP, prefix);
+        Log.d(TAG, String.format("Cache cleared for %s", packageName));
     }
 
     private static void remove(Map<String, ?> cache, String prefix) {
@@ -131,6 +134,11 @@ public class Theme {
 
     // When a theme package is reinstalled, we need to clear our caches of any stale resources from that app.
     private static void registerReinstallReceiver(Context context, final String packageName) {
+        if (sAppTrackingReceivers.containsKey(packageName)) {
+            // Already tracking this app. Ignore.
+            return;
+        }
+
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -142,6 +150,7 @@ public class Theme {
 
                 clearCacheForPackage(context, packageName);
                 context.getApplicationContext().unregisterReceiver(this);
+                sAppTrackingReceivers.remove(packageName);
             }
         };
 
@@ -151,6 +160,8 @@ public class Theme {
         intentFilter.addDataScheme("package");
 
         context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
+        sAppTrackingReceivers.put(packageName, broadcastReceiver);
+        Log.d(TAG, String.format("Registered app listener for %s", packageName));
     }
 
     /**
