@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.widget.AppCompatSpinner;
 
-public class ThemedSpinner extends Spinner {
+public class ThemedSpinner extends AppCompatSpinner {
     public ThemedSpinner(Context context) {
         super(context);
         setup(context, null);

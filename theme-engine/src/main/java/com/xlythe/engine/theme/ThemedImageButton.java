@@ -1,17 +1,16 @@
 package com.xlythe.engine.theme;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.widget.AppCompatImageButton;
 
-public class ThemedImageButton extends ImageButton {
+public class ThemedImageButton extends AppCompatImageButton {
     public ThemedImageButton(Context context) {
         super(context);
         setup(context, null);
@@ -24,12 +23,6 @@ public class ThemedImageButton extends ImageButton {
 
     public ThemedImageButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        setup(context, attrs);
-    }
-
-    @TargetApi(21)
-    public ThemedImageButton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
         setup(context, attrs);
     }
 

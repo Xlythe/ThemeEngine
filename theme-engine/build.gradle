@@ -17,6 +17,7 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api 'androidx.legacy:legacy-support-v4:+'
+    api 'androidx.appcompat:appcompat:+'
 }
 
 apply from: 'https://raw.githubusercontent.com/bourdakos1/jCenter-Upload/master/upload.gradle'
