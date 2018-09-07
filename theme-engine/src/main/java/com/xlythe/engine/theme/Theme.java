@@ -50,6 +50,7 @@ public class Theme {
     public static final String STRING = "string";
     public static final String BOOLEAN = "bool";
     public static final String DIMEN = "dimen";
+    public static final String STYLE = "style";
 
     static final String TAG = "Theme";
 
@@ -372,21 +373,11 @@ public class Theme {
      */
     @UiThread
     public static int getTheme(Context context) {
-        int id = getId(context, "string", "app_theme");
+        int id = getId(context, STRING, "app_theme");
         if (id == 0) return 0;
 
-        String fieldName = getResources(context).getString(id).replace(".", "_");
-        try {
-            Field field = android.R.style.class.getField(fieldName);
-            return field.getInt(null);
-        } catch (RuntimeException e) {
-            Log.e(TAG, "Ignoring runtime exception.", e);
-        } catch (NoSuchFieldException e) {
-            Log.e(TAG, "Reflection failed", e);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "Reflection failed", e);
-        }
-        return 0;
+        String fieldName = getResources(context).getString(id);
+        return context.getResources().getIdentifier(fieldName, STYLE, context.getPackageName());
     }
 
     /**
@@ -394,21 +385,11 @@ public class Theme {
      */
     @UiThread
     public static int getSettingsTheme(Context context) {
-        int id = getId(context, "string", "app_settings_theme");
+        int id = getId(context, STRING, "app_settings_theme");
         if (id == 0) return 0;
 
-        String fieldName = getResources(context).getString(id).replace(".", "_");
-        try {
-            Field field = android.R.style.class.getField(fieldName);
-            return field.getInt(null);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        String fieldName = getResources(context).getString(id);
+        return context.getResources().getIdentifier(fieldName, STYLE, context.getPackageName());
     }
 
     /**
@@ -416,9 +397,9 @@ public class Theme {
      */
     @UiThread
     public static boolean isLightTheme(Context context) {
-        int id = getId(context, "string", "app_theme");
+        int id = getId(context, STRING, "app_theme");
         if (id != 0) {
-            String fieldName = getResources(context).getString(id).replace(".", "_");
+            String fieldName = getResources(context).getString(id);
             return fieldName.toLowerCase(Locale.US).contains("light");
         } else {
             return false;
