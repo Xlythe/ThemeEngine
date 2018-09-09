@@ -28,7 +28,7 @@ public class ThemedEditText extends AppCompatEditText {
         setup(context, attrs);
     }
 
-    private void setup(Context context, AttributeSet attrs) {
+    private void setup(Context context, @Nullable AttributeSet attrs) {
         // Get font
         setDefaultFont();
 

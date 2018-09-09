@@ -27,7 +27,7 @@ public class ThemedGridLayout extends GridLayout {
         setup(context, attrs);
     }
 
-    private void setup(Context context, AttributeSet attrs) {
+    private void setup(Context context, @Nullable AttributeSet attrs) {
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
             if (a != null) {
