@@ -14,28 +14,28 @@ import androidx.annotation.UiThread;
 public class ThemedListView extends ListView {
     public ThemedListView(Context context) {
         super(context);
-        setup(context, null);
+        setup(context, null, 0, 0);
     }
 
     public ThemedListView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs);
+        setup(context, attrs, 0, 0);
     }
 
-    public ThemedListView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        setup(context, attrs);
+    public ThemedListView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setup(context, attrs, defStyleAttr, 0);
     }
 
     @TargetApi(21)
     public ThemedListView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        setup(context, attrs);
+        setup(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs) {
+    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get divider
                 setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themeDivider, 0)));

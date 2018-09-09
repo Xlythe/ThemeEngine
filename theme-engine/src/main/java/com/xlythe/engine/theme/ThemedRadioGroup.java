@@ -1,6 +1,7 @@
 package com.xlythe.engine.theme;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -13,17 +14,28 @@ import androidx.annotation.UiThread;
 public class ThemedRadioGroup extends RadioGroup {
     public ThemedRadioGroup(Context context) {
         super(context);
-        setup(context, null);
+        setup(context, null, 0, 0);
     }
 
     public ThemedRadioGroup(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs);
+        setup(context, attrs, 0, 0);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs) {
+    public ThemedRadioGroup(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs);
+        setup(context, attrs, defStyleAttr, 0);
+    }
+
+    @TargetApi(21)
+    public ThemedRadioGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs);
+        setup(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get divider
                 setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themeDivider, 0)));

@@ -1,6 +1,7 @@
 package com.xlythe.engine.theme;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -13,22 +14,28 @@ import androidx.appcompat.widget.AppCompatImageView;
 public class ThemedImageView extends AppCompatImageView {
     public ThemedImageView(Context context) {
         super(context);
-        setup(context, null);
+        setup(context, null, 0, 0);
     }
 
     public ThemedImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs);
+        setup(context, attrs, 0, 0);
     }
 
-    public ThemedImageView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        setup(context, attrs);
+    public ThemedImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        setup(context, attrs, defStyleAttr, 0);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs) {
+    @TargetApi(21)
+    public ThemedImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr);
+        setup(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get image
                 setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_src, 0)));
