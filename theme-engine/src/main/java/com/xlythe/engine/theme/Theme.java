@@ -283,7 +283,7 @@ public class Theme {
     public static Drawable getDrawable(Context context, String name) {
         String key = getKey(context) + "_" + name;
         if (DRAWABLE_MAP.get(key) != null) {
-            return DRAWABLE_MAP.get(key).getConstantState().newDrawable();
+            return DRAWABLE_MAP.get(key).getConstantState().newDrawable().mutate();
         }
         int id = getId(context, DRAWABLE, name);
         if (id == 0) {
