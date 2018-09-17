@@ -43,7 +43,7 @@ public class ThemedCheckBox extends AppCompatCheckBox {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get text color
-                setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColor, 0)));
+                setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_themeTextColor, 0)));
 
                 // Get text hint color
                 setHintTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_textColorHint, 0)));

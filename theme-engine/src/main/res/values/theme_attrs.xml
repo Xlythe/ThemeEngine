@@ -2,14 +2,14 @@
 <resources>
     <declare-styleable name="theme">
         <attr name="button" format="reference" />
-        <attr name="textColor" format="reference" />
+        <attr name="themeTextColor" format="reference" /> <!-- Support library -->
         <attr name="textColorHint" format="reference" />
         <attr name="textColorLink" format="reference" />
         <attr name="src" format="reference" />
-        <attr name="themeDivider" format="reference" />
-        <attr name="themeBackground" format="reference" />
+        <attr name="themeDivider" format="reference" /> <!-- Support library -->
+        <attr name="themeBackground" format="reference" /> <!-- Support library -->
         <attr name="progressDrawable" format="reference" />
         <attr name="popupBackground" format="reference" />
-        <attr name="themeFont" format="reference|string" />
+        <attr name="themeFont" format="reference|string" /> <!-- Support library -->
     </declare-styleable>
 </resources>
