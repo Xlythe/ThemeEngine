@@ -1,5 +1,7 @@
 package com.xlythe.engine.theme;
 
+import static com.xlythe.engine.theme.Theme.TAG;
+
 import android.content.ContentProvider;
 import android.content.ContentProvider.PipeDataWriter;
 import android.content.ContentValues;
@@ -12,20 +14,14 @@ import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.util.Log;
-
+import androidx.annotation.NonNull;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-
-import static com.xlythe.engine.theme.Theme.TAG;
-
-/**
- * A very simple content provider that can serve arbitrary asset files from our .apk.
- */
+/** A very simple content provider that can serve arbitrary asset files from our .apk. */
 public class FileProvider extends ContentProvider implements PipeDataWriter<InputStream> {
 
     @Override
@@ -34,7 +30,12 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
     }
 
     @Override
-    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(
+            @NonNull Uri uri,
+            String[] projection,
+            String selection,
+            String[] selectionArgs,
+            String sortOrder) {
         // Security
         verifyCaller();
 
@@ -44,7 +45,7 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
         int sizeIndex = -1;
         // If projection is null, return all columns.
         if (projection == null) {
-            projection = new String[]{OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE};
+            projection = new String[] {OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE};
         }
         for (int i = 0; i < projection.length; i++) {
             if (OpenableColumns.DISPLAY_NAME.equals(projection[i])) {
@@ -81,7 +82,8 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
     }
 
     @Override
-    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(
+            @NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Don't support updates.
         return 0;
     }
@@ -93,12 +95,14 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
     }
 
     @Override
-    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode) throws FileNotFoundException {
+    public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
+            throws FileNotFoundException {
         // Try to open an asset with the given name.
         try {
             InputStream is = getContext().getAssets().open(uri.getPath().substring(1));
             // Start a new thread that pipes the stream data back to the caller.
-            return new AssetFileDescriptor(openPipeHelper(uri, getType(uri), null, is, this), 0, AssetFileDescriptor.UNKNOWN_LENGTH);
+            return new AssetFileDescriptor(
+                    openPipeHelper(uri, getType(uri), null, is, this), 0, AssetFileDescriptor.UNKNOWN_LENGTH);
         } catch (IOException e) {
             Log.e(TAG, "Unable to open " + uri, e);
             throw new FileNotFoundException("Unable to open " + uri);
@@ -106,7 +110,12 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
     }
 
     @Override
-    public void writeDataToPipe(@NonNull ParcelFileDescriptor output, @NonNull Uri uri, @NonNull String mimeType, Bundle opts, InputStream args) {
+    public void writeDataToPipe(
+            @NonNull ParcelFileDescriptor output,
+            @NonNull Uri uri,
+            @NonNull String mimeType,
+            Bundle opts,
+            InputStream args) {
         // Transfer data from the asset to the pipe the client is reading.
         byte[] buffer = new byte[8192];
         int n;
@@ -131,9 +140,7 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
         }
     }
 
-    /**
-     * Only available on API 19+. Verifies that the caller is a supported theme.
-     */
+    /** Only available on API 19+. Verifies that the caller is a supported theme. */
     private void verifyCaller() throws SecurityException {
         if (Build.VERSION.SDK_INT < 19) {
             return;

@@ -7,7 +7,6 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
@@ -33,15 +32,18 @@ public class ThemedProgressBar extends ProgressBar {
         setup(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    private void setup(
+            Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+            TypedArray a =
+                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
+                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
                 // Get progress drawable
-                setProgressDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_progressDrawable, 0)));
+                setProgressDrawable(
+                        Theme.get(context, a.getResourceId(R.styleable.theme_themedProgressDrawable, 0)));
 
                 a.recycle();
             }
@@ -54,12 +56,12 @@ public class ThemedProgressBar extends ProgressBar {
     public void setBackground(Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
-                setBackgroundColor(Theme.getColor(getContext(), res.getName()));
+                setBackgroundColor(Theme.getColor(getContext(), res));
             } else if (Theme.DRAWABLE.equals(res.getType())) {
                 if (Build.VERSION.SDK_INT < 16) {
-                    setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
+                    setBackgroundDrawable(Theme.getDrawable(getContext(), res));
                 } else {
-                    setBackground(Theme.getDrawable(getContext(), res.getName()));
+                    setBackground(Theme.getDrawable(getContext(), res));
                 }
             }
         }
@@ -69,7 +71,7 @@ public class ThemedProgressBar extends ProgressBar {
     public void setProgressDrawable(Theme.Res res) {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
-                setProgressDrawable(Theme.getDrawable(getContext(), res.getName()));
+                setProgressDrawable(Theme.getDrawable(getContext(), res));
             }
         }
     }
@@ -78,7 +80,7 @@ public class ThemedProgressBar extends ProgressBar {
     public void setWidth(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }
@@ -88,7 +90,7 @@ public class ThemedProgressBar extends ProgressBar {
     public void setHeight(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }

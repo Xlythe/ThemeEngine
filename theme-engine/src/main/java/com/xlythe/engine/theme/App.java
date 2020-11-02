@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-
 import java.io.Serializable;
 
 public class App implements Serializable {
@@ -38,12 +37,39 @@ public class App implements Serializable {
 
     public Intent getIntent(Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        int flags = Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
+        int flags =
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED;
         intent.setFlags(flags);
         return intent;
     }
 
     public String getPackageName() {
         return packageName;
+    }
+
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other instanceof App) {
+            App that = (App) other;
+            return this.toString().equals(that.toString());
+        }
+
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("App<%s, %s>", name, packageName);
     }
 }

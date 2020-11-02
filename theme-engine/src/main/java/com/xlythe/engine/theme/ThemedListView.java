@@ -7,7 +7,6 @@ import android.content.res.TypedArray;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.ListView;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
@@ -33,15 +32,17 @@ public class ThemedListView extends ListView {
         setup(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    private void setup(
+            Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+            TypedArray a =
+                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get divider
-                setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themeDivider, 0)));
+                setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themedDivider, 0)));
 
                 // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
+                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
                 a.recycle();
             }
@@ -53,7 +54,7 @@ public class ThemedListView extends ListView {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
                 try {
-                    setDivider(Theme.getDrawable(getContext(), res.getName()));
+                    setDivider(Theme.getDrawable(getContext(), res));
                 } catch (Exception e) {
                     // Not supported on some phones...
                     e.printStackTrace();
@@ -68,12 +69,12 @@ public class ThemedListView extends ListView {
     public void setBackground(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
-                setBackgroundColor(Theme.getColor(getContext(), res.getName()));
+                setBackgroundColor(Theme.getColor(getContext(), res));
             } else if (Theme.DRAWABLE.equals(res.getType())) {
                 if (Build.VERSION.SDK_INT < 16) {
-                    setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
+                    setBackgroundDrawable(Theme.getDrawable(getContext(), res));
                 } else {
-                    setBackground(Theme.getDrawable(getContext(), res.getName()));
+                    setBackground(Theme.getDrawable(getContext(), res));
                 }
             }
         }
@@ -83,7 +84,7 @@ public class ThemedListView extends ListView {
     public void setWidth(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }
@@ -93,7 +94,7 @@ public class ThemedListView extends ListView {
     public void setHeight(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }

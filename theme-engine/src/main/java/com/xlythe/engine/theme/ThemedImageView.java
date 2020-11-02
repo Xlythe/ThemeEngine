@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.util.AttributeSet;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -33,15 +33,20 @@ public class ThemedImageView extends AppCompatImageView {
         setup(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    private void setup(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    private void setup(
+            Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+            TypedArray a =
+                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
             if (a != null) {
                 // Get image
-                setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_src, 0)));
+                setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_themedSrc, 0)));
+
+                // Get tint
+                setTint(Theme.get(context, a.getResourceId(R.styleable.theme_themedTint, 0)));
 
                 // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themeBackground, 0)));
+                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
                 a.recycle();
             }
@@ -52,7 +57,16 @@ public class ThemedImageView extends AppCompatImageView {
     public void setImageDrawable(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DRAWABLE.equals(res.getType())) {
-                setImageDrawable(Theme.getDrawable(getContext(), res.getName()));
+                setImageDrawable(Theme.getDrawable(getContext(), res));
+            }
+        }
+    }
+
+    @UiThread
+    public void setTint(@Nullable Theme.Res res) {
+        if (res != null) {
+            if (Theme.COLOR.equals(res.getType())) {
+                setColorFilter(Theme.getColor(getContext(), res), PorterDuff.Mode.MULTIPLY);
             }
         }
     }
@@ -63,12 +77,12 @@ public class ThemedImageView extends AppCompatImageView {
     public void setBackground(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
-                setBackgroundColor(Theme.getColor(getContext(), res.getName()));
+                setBackgroundColor(Theme.getColor(getContext(), res));
             } else if (Theme.DRAWABLE.equals(res.getType())) {
                 if (Build.VERSION.SDK_INT < 16) {
-                    setBackgroundDrawable(Theme.getDrawable(getContext(), res.getName()));
+                    setBackgroundDrawable(Theme.getDrawable(getContext(), res));
                 } else {
-                    setBackground(Theme.getDrawable(getContext(), res.getName()));
+                    setBackground(Theme.getDrawable(getContext(), res));
                 }
             }
         }
@@ -78,7 +92,7 @@ public class ThemedImageView extends AppCompatImageView {
     public void setWidth(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }
@@ -88,7 +102,7 @@ public class ThemedImageView extends AppCompatImageView {
     public void setHeight(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = Theme.getDimen(getContext(), res).intValue();
+                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
                 requestLayout();
             }
         }

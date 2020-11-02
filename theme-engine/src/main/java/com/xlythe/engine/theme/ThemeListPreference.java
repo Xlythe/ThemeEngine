@@ -5,7 +5,6 @@ import android.content.Context;
 import android.preference.ListPreference;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
-
 import java.util.List;
 
 public class ThemeListPreference extends ListPreference {
@@ -26,7 +25,8 @@ public class ThemeListPreference extends ListPreference {
     }
 
     @TargetApi(21)
-    public ThemeListPreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ThemeListPreference(
+            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         setup();
     }
@@ -53,7 +53,11 @@ public class ThemeListPreference extends ListPreference {
         setDefaultValue(null);
 
         // Update the UI to display the selected theme name
-        setSummary(getThemeTitle(themes, PreferenceManager.getDefaultSharedPreferences(getContext()).getString(getKey(), getContext().getPackageName())));
+        setSummary(
+                getThemeTitle(
+                        themes,
+                        PreferenceManager.getDefaultSharedPreferences(getContext())
+                                .getString(getKey(), getContext().getPackageName())));
     }
 
     private String getThemeTitle(List<App> themes, Object packageName) {
