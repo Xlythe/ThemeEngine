@@ -41,8 +41,12 @@ public class ThemedScrollView extends ScrollView {
                 // Get background
                 setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
-                if ("none".equals(Theme.getString(getContext(), "requiresFadingEdge"))) {
-                    setVerticalFadingEdgeEnabled(false);
+                try {
+                    if ("none".equals(Theme.getString(getContext(), "requiresFadingEdge"))) {
+                        setVerticalFadingEdgeEnabled(false);
+                    }
+                } catch (IllegalArgumentException e) {
+                    // ignored
                 }
 
                 a.recycle();
