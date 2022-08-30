@@ -1,15 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="theme">
-        <attr name="button" format="reference" />
-        <attr name="themeTextColor" format="reference" /> <!-- Support library -->
-        <attr name="textColorHint" format="reference" />
-        <attr name="textColorLink" format="reference" />
-        <attr name="src" format="reference" />
-        <attr name="themeDivider" format="reference" /> <!-- Support library -->
-        <attr name="themeBackground" format="reference" /> <!-- Support library -->
-        <attr name="progressDrawable" format="reference" />
-        <attr name="popupBackground" format="reference" />
-        <attr name="themeFont" format="reference|string" /> <!-- Support library -->
+        <!--
+            Due to limitations in aapt, every attribute name must be globally unique. The name of
+            the styleable we set above is erased during compilation. Therefore, we namespace
+            ourselves with "themed" to not conflict with similarly named attributes in the support
+            library.
+        -->
+        <attr name="themedButton" format="reference" />
+        <attr name="themedButtonTint" format="reference" />
+        <attr name="themedTextSize" format="reference" />
+        <attr name="themedTextColor" format="reference" />
+        <attr name="themedTextColorHint" format="reference" />
+        <attr name="themedTextColorLink" format="reference" />
+        <attr name="themedSrc" format="reference" />
+        <attr name="themedDivider" format="reference" />
+        <attr name="themedBackground" format="reference" />
+        <attr name="themedProgressDrawable" format="reference" />
+        <attr name="themedPopupBackground" format="reference" />
+        <attr name="themedFont" format="reference|string" />
+        <attr name="themedFontFamily" format="reference" />
+        <attr name="themedTextStyle" format="reference" />
+        <attr name="themedTint" format="reference" />
     </declare-styleable>
 </resources>

@@ -13,6 +13,17 @@ dependencies {
 
 How to Use
 -----------------
+As of Android 11 (API 30), the main app must add this to their AndroidManifest.
+```xml
+<manifest package="com.example.myapp">
+    <queries>
+        <intent>
+            <action android:name="com.example.myapp.THEME" /> <!-- Change com.example.myapp to your main app's package name -->
+        </intent>
+    </queries>
+</manifest>
+```
+
 The main app must make the following call before setContentView. This is only needed in the very first Activity.
 ```java
 Theme.setPackageName(MY_THEME_PACKAGE_NAME);
@@ -23,7 +34,7 @@ Then you can either automatically grab the images and colors via ThemedView in x
 <com.xlythe.engine.theme.ThemedTextView xmlns:theme="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    theme:textColor="@color/text_color" />
+    theme:themedTextColor="@color/text_color" />
 ```
 or
 ```java

@@ -1,5 +1,6 @@
 package com.xlythe.engine.theme;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +29,7 @@ import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.FontRes;
 import androidx.annotation.IntegerRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
@@ -42,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+@SuppressLint("DiscouragedApi")
 public class Theme {
     public static final String COLOR = "color";
     public static final String FONT = "font";
@@ -718,6 +721,7 @@ public class Theme {
             return name;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return String.format("Res{name=%s, type=%s}", name, type);

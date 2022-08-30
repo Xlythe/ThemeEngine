@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.Serializable;
 
 public class App implements Serializable {
@@ -55,7 +59,7 @@ public class App implements Serializable {
     }
 
     @Override
-    public boolean equals(Object other) {
+    public boolean equals(@Nullable Object other) {
         if (this == other) {
             return true;
         }
@@ -68,6 +72,7 @@ public class App implements Serializable {
         return false;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return String.format("App<%s, %s>", name, packageName);
