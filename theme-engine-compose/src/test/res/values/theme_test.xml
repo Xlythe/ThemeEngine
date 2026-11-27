@@ -1,0 +1,4 @@
+<resources>
+    <color name="test_brand">#aaaaaa</color>
+    <dimen name="test_inset">12dp</dimen>
+</resources>

@@ -41,6 +41,9 @@ public class ThemeTest {
             @Override public int getIdentifier(String key, String type, String pkg) {
                 return font == null ? 0 : 1;
             }
+            @Override public void getValue(int id, android.util.TypedValue value, boolean resolveRefs) {
+                value.string = "res/font/test.xml";
+            }
             @Override public Typeface getFont(int id) { return font; }
         });
     }
@@ -60,6 +63,51 @@ public class ThemeTest {
         context.sendBroadcast(new Intent(Intent.ACTION_PACKAGE_REPLACED, Uri.parse("package:theme.second")));
         shadowOf(Looper.getMainLooper()).idle();
         assertSame(Typeface.SANS_SERIF, Theme.getFont(context, "headline"));
+    }
+
+    @Test
+    public void replacingBinaryFontAtSameResourcePathReadsNewBytes() {
+        String pkg = "theme.typeface";
+        install(pkg, null);
+        String[] fixture = {"narrow"};
+        java.util.List<String> opened = new java.util.ArrayList<>();
+        Resources host = context.getResources();
+        ShadowPackageManager.resources.put(pkg, new Resources(
+                host.getAssets(), host.getDisplayMetrics(), host.getConfiguration()) {
+            @Override public int getIdentifier(String name, String type, String owner) { return 1; }
+            @Override public void getValue(int id, android.util.TypedValue value, boolean resolveRefs) {
+                value.string = "res/font/body.ttf";
+            }
+            @Override public java.io.InputStream openRawResource(int id) {
+                opened.add(fixture[0]);
+                return ThemeTest.class.getResourceAsStream("/fonts/" + fixture[0] + ".ttf");
+            }
+        });
+        Theme.setPackageName(pkg);
+        Typeface first = Theme.getFont(context, "body");
+        assertNotNull(first);
+        assertSame(first, Theme.getFont(context, "body"));
+        fixture[0] = "wide";
+        context.sendBroadcast(new Intent(Intent.ACTION_PACKAGE_REPLACED, Uri.parse("package:" + pkg)));
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNotNull(Theme.getFont(context, "body"));
+        assertEquals(java.util.Arrays.asList("narrow", "wide"), opened);
+    }
+
+    @Test public void listenersObserveChangesOnceAndCanUnsubscribe() {
+        int[] calls = {0};
+        Runnable listener = () -> calls[0]++;
+        Theme.addChangeListener(listener);
+        long before = Theme.getRevision();
+        Theme.setPackageNames("theme.primary", "theme.first");
+        Theme.setPackageNames("theme.primary", "theme.first");
+        Theme.setFont(context, Typeface.SERIF);
+        Theme.setFont(context, Typeface.SERIF);
+        assertEquals(before + 2, Theme.getRevision());
+        assertEquals(2, calls[0]);
+        Theme.removeChangeListener(listener);
+        Theme.setPackageName(null);
+        assertEquals(2, calls[0]);
     }
 
     @Test public void launcherIsOptionalForInstalledTheme() {

@@ -1,1 +1,1 @@
-include ':theme-engine'
+include ':theme-engine', ':theme-engine-compose'

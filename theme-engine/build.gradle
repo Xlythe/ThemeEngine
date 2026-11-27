@@ -1,17 +1,8 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
-
-Properties projectProperties = new Properties()
-projectProperties.load(rootProject.file('gradle.properties').newDataInputStream())
-
-Properties localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withInputStream { localProperties.load(it) }
-}
+apply from: rootProject.file('publish-library.gradle')
 
 android {
+    namespace "com.xlythe.engine.theme"
     compileSdkVersion 33
 
     defaultConfig {
@@ -28,62 +19,6 @@ android {
             withJavadocJar()
         }
     }
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = group = projectProperties.getProperty("bintray.groupId")
-                artifactId = projectProperties.getProperty("bintray.artifact")
-                version = projectProperties.getProperty("bintray.libraryVersion")
-
-                pom {
-                    name = projectProperties.getProperty("bintray.libraryName")
-                    description = projectProperties.getProperty("bintray.libraryDescription")
-                    url = projectProperties.getProperty("bintray.siteUrl")
-                    licenses {
-                        license {
-                            name = projectProperties.getProperty("bintray.licenseName")
-                            url = projectProperties.getProperty("bintray.licenseUrl")
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = projectProperties.getProperty("bintray.developerId")
-                            name = projectProperties.getProperty("bintray.developerName")
-                            email = projectProperties.getProperty("bintray.developerEmail")
-                        }
-                    }
-                    scm {
-                        connection = projectProperties.getProperty("bintray.gitUrl")
-                        developerConnection = projectProperties.getProperty("bintray.gitUrl")
-                        url = projectProperties.getProperty("bintray.siteUrl")
-                    }
-                }
-            }
-        }
-        repositories {
-            maven {
-                name = "MavenCentral"
-                url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-                credentials {
-                    username = localProperties.getProperty("bintray.username")
-                    password = localProperties.getProperty("bintray.password")
-                }
-            }
-        }
-    }
-}
-
-signing {
-    useInMemoryPgpKeys(
-            localProperties.getProperty("signing.keyId"),
-            localProperties.getProperty("signing.key"),
-            localProperties.getProperty("signing.password"),
-    )
-    sign publishing.publications
 }
 
 dependencies {

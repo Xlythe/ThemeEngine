@@ -11,6 +11,26 @@ dependencies {
 }
 ```
 
+### Jetpack Compose
+
+The optional `com.xlythe:theme-engine-compose` artifact supports API 21 and newer. It depends on the matching core version. To try this PR from source, add `implementation(project(":theme-engine-compose"))` to a Compose-enabled app in the build.
+
+Wrap the screen once and map your host resource IDs to Material 3 roles. ThemeEngine resolves each ID by name through the configured theme APKs, then the host. Other roles inherit the surrounding Material theme.
+
+```kotlin
+ProvideThemeEngineTheme(
+    colorScheme = { base -> base.copy(primary = color(R.color.brand)) },
+    typography = { base ->
+        base.copy(bodyLarge = base.bodyLarge.copy(fontFamily = fontFamily("body") ?: base.bodyLarge.fontFamily))
+    }
+) {
+    val inset = LocalThemeResources.current.dimension(R.dimen.content_inset)
+    Text("Now playing", Modifier.padding(inset), color = MaterialTheme.colorScheme.primary)
+}
+```
+
+Use the existing `Theme.setPackageNames(...)` API on the main thread to change the selection. The provider updates when a selected package changes, when the configuration changes, or when the app sets a new default font. The screen keeps its remembered state. Data-only themes do not need Compose dependencies.
+
 How to Use
 -----------------
 As of Android 11 (API 30), the main app must add this to their AndroidManifest.
