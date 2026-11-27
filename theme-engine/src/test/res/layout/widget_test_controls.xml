@@ -1,0 +1,14 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <com.xlythe.engine.theme.ThemedSeekBar
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        app:themedThumb="@drawable/widget_test_drawable" />
+    <com.xlythe.engine.theme.ThemedRatingBar
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        app:themedProgressDrawable="@drawable/widget_test_drawable" />
+    <com.xlythe.engine.theme.ThemedSearchView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        app:themedQueryHint="@string/widget_test_hint" />
+</LinearLayout>

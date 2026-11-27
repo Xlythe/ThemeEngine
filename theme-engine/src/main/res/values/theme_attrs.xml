@@ -22,5 +22,11 @@
         <attr name="themedFontFamily" format="reference" />
         <attr name="themedTextStyle" format="reference" />
         <attr name="themedTint" format="reference" />
+        <attr name="themedThumb" format="reference" />
+        <attr name="themedIndeterminateDrawable" format="reference" />
+        <attr name="themedQueryHint" format="reference" />
+        <attr name="themedDropDownBackground" format="reference" />
+        <attr name="themedTitleTextColor" format="reference" />
+        <attr name="themedSubtitleTextColor" format="reference" />
     </declare-styleable>
 </resources>

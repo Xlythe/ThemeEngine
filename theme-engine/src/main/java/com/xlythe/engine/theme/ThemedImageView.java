@@ -29,27 +29,24 @@ public class ThemedImageView extends AppCompatImageView {
 
     @TargetApi(21)
     public ThemedImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr);
-        setup(context, attrs, defStyleAttr, defStyleRes);
+        super(WidgetStyle.withFallback(context, defStyleAttr, defStyleRes), attrs, defStyleAttr);
+        setup(getContext(), attrs, defStyleAttr, defStyleRes);
     }
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a =
-                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
-            if (a != null) {
-                // Get image
-                setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_themedSrc, 0)));
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        try {
+            // Get image
+            setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_themedSrc, 0)));
 
-                // Get tint
-                setTint(Theme.get(context, a.getResourceId(R.styleable.theme_themedTint, 0)));
+            // Get tint
+            setTint(Theme.get(context, a.getResourceId(R.styleable.theme_themedTint, 0)));
 
-                // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
-
-                a.recycle();
-            }
+            // Get background
+            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+        } finally {
+            a.recycle();
         }
     }
 
@@ -66,7 +63,8 @@ public class ThemedImageView extends AppCompatImageView {
     public void setTint(@Nullable Theme.Res res) {
         if (res != null) {
             if (Theme.COLOR.equals(res.getType())) {
-                setColorFilter(Theme.getColor(getContext(), res), PorterDuff.Mode.MULTIPLY);
+                androidx.core.widget.ImageViewCompat.setImageTintMode(this, PorterDuff.Mode.MULTIPLY);
+                androidx.core.widget.ImageViewCompat.setImageTintList(this, Theme.getColorStateList(getContext(), res));
             }
         }
     }
@@ -90,21 +88,17 @@ public class ThemedImageView extends AppCompatImageView {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        WidgetStyle.setDimension(this, res, R.id.theme_pending_width);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        WidgetStyle.setDimension(this, res, R.id.theme_pending_height);
+    }
+
+    @Override
+    public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
+        WidgetStyle.applyPendingDimensions(this, params);
+        super.setLayoutParams(params);
     }
 }

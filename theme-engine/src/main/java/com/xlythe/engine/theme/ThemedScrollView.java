@@ -13,12 +13,12 @@ import androidx.annotation.UiThread;
 public class ThemedScrollView extends ScrollView {
     public ThemedScrollView(Context context) {
         super(context);
-        setup(context, null, 0, 0);
+        setup(getContext(), null, android.R.attr.scrollViewStyle, 0);
     }
 
     public ThemedScrollView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs, 0, 0);
+        setup(getContext(), attrs, android.R.attr.scrollViewStyle, 0);
     }
 
     public ThemedScrollView(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -34,23 +34,20 @@ public class ThemedScrollView extends ScrollView {
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a =
-                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
-            if (a != null) {
-                // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        try {
+            // Get background
+            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
-                try {
-                    if ("none".equals(Theme.getString(getContext(), "requiresFadingEdge"))) {
-                        setVerticalFadingEdgeEnabled(false);
-                    }
-                } catch (IllegalArgumentException e) {
-                    // ignored
+            try {
+                if ("none".equals(Theme.getString(getContext(), "requiresFadingEdge"))) {
+                    setVerticalFadingEdgeEnabled(false);
                 }
-
-                a.recycle();
+            } catch (IllegalArgumentException e) {
+                // ignored
             }
+        } finally {
+            a.recycle();
         }
     }
 
@@ -73,21 +70,17 @@ public class ThemedScrollView extends ScrollView {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        WidgetStyle.setDimension(this, res, R.id.theme_pending_width);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        WidgetStyle.setDimension(this, res, R.id.theme_pending_height);
+    }
+
+    @Override
+    public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
+        WidgetStyle.applyPendingDimensions(this, params);
+        super.setLayoutParams(params);
     }
 }
