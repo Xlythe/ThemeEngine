@@ -246,11 +246,14 @@ public class ThemeTest {
         int uid = 12345;
         shadowOf(context.getPackageManager()).setPackagesForUid(uid, host);
         ShadowBinder.setCallingUid(uid);
-        ProviderInfo info = new ProviderInfo();
-        info.authority = "theme.assets";
+        String authority = context.getPackageName() + ".FileProvider";
+        ProviderInfo info = context.getPackageManager().resolveContentProvider(authority, 0);
+        assertNotNull(info);
+        assertEquals(FileProvider.class.getName(), info.name);
+        assertTrue(info.exported);
         FileProvider provider = new FileProvider();
         provider.attachInfo(context, info);
-        Uri asset = Uri.parse("content://theme.assets/missing.ttf");
+        Uri asset = Uri.parse("content://" + authority + "/missing.ttf");
         assertThrows(SecurityException.class, () -> provider.query(asset, null, null, null, null));
         assertThrows(SecurityException.class, () -> provider.openAssetFile(asset, "r"));
 

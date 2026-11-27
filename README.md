@@ -7,7 +7,7 @@ Where to Download
 -----------------
 ```groovy
 dependencies {
-  implementation 'com.xlythe:theme-engine:3.0.0'
+  implementation 'com.xlythe:theme-engine:3.0.1'
 }
 ```
 
@@ -17,7 +17,7 @@ For a Compose app on API 21 or newer, add the Compose artifact. It brings in the
 
 ```groovy
 dependencies {
-  implementation 'com.xlythe:theme-engine-compose:3.0.0'
+  implementation 'com.xlythe:theme-engine-compose:3.0.1'
 }
 ```
 
@@ -79,7 +79,7 @@ As for the theme apk, it's job is simple. It requires no java code. For starters
     <action android:name="com.example.myapp.THEME" /> <!-- Change com.example.myapp to your main app's package name -->
 </intent-filter>
 ```
-Then add in any drawables and colors you want to replace. Just name them the same as they are in the main app. For custom fonts, add a font file called "font" to /assets.
+Then add in any drawables and colors you want to replace. Just name them the same as they are in the main app. For custom fonts, add `font.ttf` or `font.otf` to the theme’s assets. The core library registers its asset provider automatically at `${applicationId}.FileProvider`. External callers can read assets only when the theme declares support for their package.
 
 ### XML attribute names
 
