@@ -1,28 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="theme">
-        <!-- Styleable groups can share the same R.attr ID. Prefix public attributes to avoid
-             collisions when an app merges this library's resources with other dependencies. -->
         <attr name="themedButton" format="reference" />
+        <attr name="button" format="reference" />
         <attr name="themedButtonTint" format="reference" />
+        <attr name="buttonTint" />
         <attr name="themedTextSize" format="reference" />
+        <attr name="textSize" format="reference" />
         <attr name="themedTextColor" format="reference" />
+        <attr name="textColor" format="reference" />
         <attr name="themedTextColorHint" format="reference" />
+        <attr name="textColorHint" format="reference" />
         <attr name="themedTextColorLink" format="reference" />
+        <attr name="textColorLink" format="reference" />
         <attr name="themedSrc" format="reference" />
+        <attr name="src" format="reference" />
         <attr name="themedDivider" format="reference" />
+        <attr name="divider" />
         <attr name="themedBackground" format="reference" />
+        <attr name="background" />
         <attr name="themedProgressDrawable" format="reference" />
+        <attr name="progressDrawable" format="reference" />
         <attr name="themedPopupBackground" format="reference" />
+        <attr name="popupBackground" format="reference" />
         <attr name="themedFont" format="reference|string" />
+        <attr name="font" />
         <attr name="themedFontFamily" format="reference" />
+        <attr name="fontFamily" />
         <attr name="themedTextStyle" format="reference" />
+        <attr name="textStyle" format="reference" />
         <attr name="themedTint" format="reference" />
+        <attr name="tint" />
         <attr name="themedThumb" format="reference" />
+        <attr name="thumb" format="reference" />
         <attr name="themedIndeterminateDrawable" format="reference" />
+        <attr name="indeterminateDrawable" format="reference" />
         <attr name="themedQueryHint" format="reference" />
+        <attr name="queryHint" />
         <attr name="themedDropDownBackground" format="reference" />
+        <attr name="dropDownBackground" format="reference" />
         <attr name="themedTitleTextColor" format="reference" />
+        <attr name="titleTextColor" />
         <attr name="themedSubtitleTextColor" format="reference" />
+        <attr name="subtitleTextColor" />
     </declare-styleable>
 </resources>

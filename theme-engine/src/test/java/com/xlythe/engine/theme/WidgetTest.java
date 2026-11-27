@@ -47,6 +47,44 @@ public class WidgetTest {
         assertEquals("Find albums", ((ThemedSearchView) layout.getChildAt(2)).getQueryHint());
     }
 
+    @Test public void shortNamesInflateAndPrefixedButtonWinsWhenBothAreSet() {
+        LinearLayout layout = (LinearLayout) android.view.LayoutInflater.from(context)
+                .inflate(id("widget_test_aliases", "layout"), null);
+        for (int i = 0; i < 2; i++) {
+            ThemedCheckBox box = (ThemedCheckBox) layout.getChildAt(i);
+            assertEquals(13, androidx.core.widget.CompoundButtonCompat.getButtonDrawable(box).getIntrinsicWidth());
+        }
+        assertEquals(13, ((ThemedSeekBar) layout.getChildAt(2)).getThumb().getIntrinsicWidth());
+        assertEquals("Find albums", ((ThemedSearchView) layout.getChildAt(3)).getQueryHint());
+        ThemedCheckBox platform = (ThemedCheckBox) layout.getChildAt(4);
+        assertEquals(context.getResources().getDrawable(android.R.drawable.btn_star).getIntrinsicWidth(),
+                androidx.core.widget.CompoundButtonCompat.getButtonDrawable(platform).getIntrinsicWidth());
+    }
+
+    @Test public void everyAttributeAcceptsBothNamesAndPrefersThePrefixedValue() {
+        for (WidgetAttribute attribute : WidgetAttribute.values()) {
+            StringBuilder suffix = new StringBuilder();
+            for (String part : attribute.name().toLowerCase(java.util.Locale.ROOT).split("_")) {
+                suffix.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+            }
+            int prefixed = id("themed" + suffix, "attr");
+            int shortName = id(Character.toLowerCase(suffix.charAt(0)) + suffix.substring(1), "attr");
+            int first = android.R.drawable.btn_star;
+            int second = id("widget_test_drawable", "drawable");
+            for (int mask = 1; mask <= 3; mask++) {
+                org.robolectric.android.AttributeSetBuilder builder = org.robolectric.Robolectric.buildAttributeSet();
+                if ((mask & 1) != 0) builder.addAttribute(shortName, "@android:drawable/btn_star");
+                if ((mask & 2) != 0) builder.addAttribute(prefixed, "@drawable/widget_test_drawable");
+                android.content.res.TypedArray values = context.obtainStyledAttributes(builder.build(), R.styleable.theme);
+                try {
+                    assertEquals(attribute.name(), mask == 1 ? first : second, attribute.resourceId(values));
+                } finally {
+                    values.recycle();
+                }
+            }
+        }
+    }
+
     @Test public void dimensionsApplyToParentParametersOnlyOnce() {
         ThemedView view = new ThemedView(context);
         Theme.Res size = Theme.get(context, id("widget_test_width", "dimen"));

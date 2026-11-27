@@ -1,0 +1,21 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <com.xlythe.engine.theme.ThemedCheckBox
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        app:button="@drawable/widget_test_drawable" />
+    <com.xlythe.engine.theme.ThemedCheckBox
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        app:button="@android:drawable/btn_star"
+        app:themedButton="@drawable/widget_test_drawable" />
+    <com.xlythe.engine.theme.ThemedSeekBar
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        app:thumb="@drawable/widget_test_drawable" />
+    <com.xlythe.engine.theme.ThemedSearchView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        app:queryHint="@string/widget_test_hint" />
+    <com.xlythe.engine.theme.ThemedCheckBox
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        app:button="@android:drawable/btn_star" />
+</LinearLayout>

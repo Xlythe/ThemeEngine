@@ -27,7 +27,7 @@ public final class ThemedWidgets {
         Context context = view.getContext();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
         try {
-            Theme.Res background = Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0));
+            Theme.Res background = Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a));
             if (background != null) {
                 if (Theme.COLOR.equals(background.getType())) view.setBackgroundColor(Theme.getColor(context, background));
                 else if (Theme.DRAWABLE.equals(background.getType())) ViewCompat.setBackground(view, Theme.getDrawable(context, background));
@@ -35,28 +35,28 @@ public final class ThemedWidgets {
             if (view instanceof TextView) applyText((TextView) view, a);
             if (view instanceof ProgressBar) {
                 ProgressBar progress = (ProgressBar) view;
-                int id = a.getResourceId(R.styleable.theme_themedProgressDrawable, 0);
+                int id = WidgetAttribute.PROGRESS_DRAWABLE.resourceId(a);
                 if (id != 0) progress.setProgressDrawable(Theme.getDrawable(context, id));
-                id = a.getResourceId(R.styleable.theme_themedIndeterminateDrawable, 0);
+                id = WidgetAttribute.INDETERMINATE_DRAWABLE.resourceId(a);
                 if (id != 0) progress.setIndeterminateDrawable(Theme.getDrawable(context, id));
             }
             if (view instanceof SeekBar) {
-                int id = a.getResourceId(R.styleable.theme_themedThumb, 0);
+                int id = WidgetAttribute.THUMB.resourceId(a);
                 if (id != 0) ((SeekBar) view).setThumb(Theme.getDrawable(context, id));
             }
             if (view instanceof SearchView) {
-                int id = a.getResourceId(R.styleable.theme_themedQueryHint, 0);
+                int id = WidgetAttribute.QUERY_HINT.resourceId(a);
                 if (id != 0) ((SearchView) view).setQueryHint(Theme.getString(context, id));
             }
             if (view instanceof AutoCompleteTextView) {
-                int id = a.getResourceId(R.styleable.theme_themedDropDownBackground, 0);
+                int id = WidgetAttribute.DROP_DOWN_BACKGROUND.resourceId(a);
                 if (id != 0) ((AutoCompleteTextView) view).setDropDownBackgroundDrawable(Theme.getDrawable(context, id));
             }
             if (Build.VERSION.SDK_INT >= 21 && view instanceof Toolbar) {
                 Toolbar toolbar = (Toolbar) view;
-                int id = a.getResourceId(R.styleable.theme_themedTitleTextColor, 0);
+                int id = WidgetAttribute.TITLE_TEXT_COLOR.resourceId(a);
                 if (id != 0) toolbar.setTitleTextColor(Theme.getColor(context, id));
-                id = a.getResourceId(R.styleable.theme_themedSubtitleTextColor, 0);
+                id = WidgetAttribute.SUBTITLE_TEXT_COLOR.resourceId(a);
                 if (id != 0) toolbar.setSubtitleTextColor(Theme.getColor(context, id));
             }
         } finally {
@@ -66,16 +66,17 @@ public final class ThemedWidgets {
 
     private static void applyText(TextView view, TypedArray a) {
         Context context = view.getContext();
-        int id = a.getResourceId(R.styleable.theme_themedTextColor, 0);
+        int id = WidgetAttribute.TEXT_COLOR.resourceId(a);
         if (id != 0) view.setTextColor(Theme.getColorStateList(context, id));
-        id = a.getResourceId(R.styleable.theme_themedTextColorHint, 0);
+        id = WidgetAttribute.TEXT_COLOR_HINT.resourceId(a);
         if (id != 0) view.setHintTextColor(Theme.getColorStateList(context, id));
-        id = a.getResourceId(R.styleable.theme_themedTextColorLink, 0);
+        id = WidgetAttribute.TEXT_COLOR_LINK.resourceId(a);
         if (id != 0) view.setLinkTextColor(Theme.getColorStateList(context, id));
-        id = a.getResourceId(R.styleable.theme_themedTextSize, 0);
+        id = WidgetAttribute.TEXT_SIZE.resourceId(a);
         if (id != 0) view.setTextSize(TypedValue.COMPLEX_UNIT_PX, Theme.getDimen(context, id));
-        id = a.getResourceId(R.styleable.theme_themedFont, 0);
-        String name = id == 0 ? a.getString(R.styleable.theme_themedFont) : context.getResources().getResourceEntryName(id);
+        id = WidgetAttribute.FONT.resourceId(a);
+        String name = id != 0 && Theme.FONT.equals(context.getResources().getResourceTypeName(id))
+                ? context.getResources().getResourceEntryName(id) : WidgetAttribute.FONT.string(a);
         Typeface font = name == null ? Theme.getFont(context) : Theme.getFont(context, name);
         if (font != null) view.setTypeface(font);
     }

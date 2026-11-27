@@ -39,10 +39,10 @@ public class ThemedTableLayout extends TableLayout {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
         try {
             // Get divider
-            setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themedDivider, 0)));
+            setDivider(Theme.get(context, WidgetAttribute.DIVIDER.resourceId(a)));
 
             // Get background
-            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+            setBackground(Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a)));
         } finally {
             a.recycle();
         }
