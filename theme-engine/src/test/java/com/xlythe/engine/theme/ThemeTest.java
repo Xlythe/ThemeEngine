@@ -42,7 +42,7 @@ public class ThemeTest {
                 return font == null ? 0 : 1;
             }
             @Override public void getValue(int id, android.util.TypedValue value, boolean resolveRefs) {
-                value.string = "res/font/test.xml";
+                value.string = null;
             }
             @Override public Typeface getFont(int id) { return font; }
         });
@@ -60,8 +60,16 @@ public class ThemeTest {
         assertSame(Typeface.MONOSPACE, Theme.getFont(context, "headline"));
 
         install("theme.second", Typeface.SANS_SERIF);
+        long revision = Theme.getRevision();
+        for (String action : new String[]{Intent.ACTION_PACKAGE_REMOVED, Intent.ACTION_PACKAGE_ADDED}) {
+            context.sendBroadcast(new Intent(action, Uri.parse("package:theme.second"))
+                    .putExtra(Intent.EXTRA_REPLACING, true));
+            shadowOf(Looper.getMainLooper()).idle();
+            assertEquals(revision, Theme.getRevision());
+        }
         context.sendBroadcast(new Intent(Intent.ACTION_PACKAGE_REPLACED, Uri.parse("package:theme.second")));
         shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(revision + 1, Theme.getRevision());
         assertSame(Typeface.SANS_SERIF, Theme.getFont(context, "headline"));
     }
 
@@ -80,7 +88,7 @@ public class ThemeTest {
             }
             @Override public java.io.InputStream openRawResource(int id) {
                 opened.add(fixture[0]);
-                return ThemeTest.class.getResourceAsStream("/fonts/" + fixture[0] + ".ttf");
+                return host.openRawResource(host.getIdentifier("theme_test_" + fixture[0], "font", context.getPackageName()));
             }
         });
         Theme.setPackageName(pkg);
@@ -92,6 +100,30 @@ public class ThemeTest {
         shadowOf(Looper.getMainLooper()).idle();
         assertNotNull(Theme.getFont(context, "body"));
         assertEquals(java.util.Arrays.asList("narrow", "wide"), opened);
+    }
+
+    @Test public void bundledXmlFontFamilyIsParsedAgainAfterReplacement() {
+        String pkg = "theme.family";
+        install(pkg, null);
+        Resources host = context.getResources();
+        int family = host.getIdentifier("theme_test_family", "font", context.getPackageName());
+        int[] reads = {0};
+        ShadowPackageManager.resources.put(pkg, new Resources(
+                host.getAssets(), host.getDisplayMetrics(), host.getConfiguration()) {
+            @Override public int getIdentifier(String name, String type, String owner) { return family; }
+            @Override public android.content.res.XmlResourceParser getXml(int id) {
+                reads[0]++;
+                return host.getXml(id);
+            }
+        });
+        Theme.setPackageName(pkg);
+        assertNotNull(Theme.getFont(context, "body"));
+        assertNotNull(Theme.getFont(context, "body"));
+        assertEquals(1, reads[0]);
+        context.sendBroadcast(new Intent(Intent.ACTION_PACKAGE_REPLACED, Uri.parse("package:" + pkg)));
+        shadowOf(Looper.getMainLooper()).idle();
+        assertNotNull(Theme.getFont(context, "body"));
+        assertEquals(2, reads[0]);
     }
 
     @Test public void listenersObserveChangesOnceAndCanUnsubscribe() {
@@ -106,6 +138,30 @@ public class ThemeTest {
         assertEquals(before + 2, Theme.getRevision());
         assertEquals(2, calls[0]);
         Theme.removeChangeListener(listener);
+        Theme.setPackageName(null);
+        assertEquals(2, calls[0]);
+    }
+
+    @Test public void viewHostRefreshesOnStartAndUnsubscribesOnDestroy() {
+        class Owner implements androidx.lifecycle.LifecycleOwner {
+            final androidx.lifecycle.LifecycleRegistry lifecycle = new androidx.lifecycle.LifecycleRegistry(this);
+            public androidx.lifecycle.Lifecycle getLifecycle() { return lifecycle; }
+        }
+        Owner owner = new Owner();
+        int[] calls = {0};
+        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE);
+        Theme.observeChanges(owner, () -> calls[0]++);
+        Theme.setPackageName("first");
+        Theme.setPackageName("second");
+        assertEquals(0, calls[0]);
+        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START);
+        assertEquals(1, calls[0]);
+        Theme.setPackageName("third");
+        assertEquals(2, calls[0]);
+        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP);
+        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START);
+        assertEquals(2, calls[0]);
+        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY);
         Theme.setPackageName(null);
         assertEquals(2, calls[0]);
     }

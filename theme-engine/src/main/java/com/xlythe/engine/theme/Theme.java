@@ -14,6 +14,7 @@ import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
@@ -35,6 +36,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
+import androidx.core.content.res.FontResourcesParserCompat;
+import androidx.core.graphics.TypefaceCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +86,39 @@ public class Theme {
 
     @UiThread
     public static void removeChangeListener(@NonNull Runnable listener) { changeListeners.remove(listener); }
+
+    /**
+     * Observe changes while a View host is started. A change received in the background is
+     * delivered on its next start. Registration is removed when the owner is destroyed.
+     * Register once during creation, after reading the initial selection.
+     */
+    @UiThread
+    public static void observeChanges(LifecycleOwner owner, Runnable refresh) {
+        Lifecycle lifecycle = owner.getLifecycle();
+        if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) return;
+        class Observer implements LifecycleEventObserver, Runnable {
+            long delivered = revision;
+
+            @Override public void run() {
+                if (delivered != revision && lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                    delivered = revision;
+                    refresh.run();
+                }
+            }
+
+            @Override public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+                if (event == Lifecycle.Event.ON_DESTROY) {
+                    removeChangeListener(this);
+                    lifecycle.removeObserver(this);
+                } else if (event == Lifecycle.Event.ON_START) {
+                    run();
+                }
+            }
+        }
+        Observer observer = new Observer();
+        addChangeListener(observer);
+        lifecycle.addObserver(observer);
+    }
 
     private static void notifyThemeChanged() {
         revision++;
@@ -166,6 +206,9 @@ public class Theme {
                 new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
+                        // Replacement emits REMOVED and ADDED before the final REPLACED broadcast.
+                        if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)
+                                && !Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())) return;
                         String updatedPackageName = intent.getData().getEncodedSchemeSpecificPart();
                         if (!packageName.equals(updatedPackageName)) {
                             // Ignored. Wrong app.
@@ -190,7 +233,6 @@ public class Theme {
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-        intentFilter.addAction(Intent.ACTION_PACKAGE_INSTALL);
         intentFilter.addDataScheme("package");
 
         context.getApplicationContext().registerReceiver(broadcastReceiver, intentFilter);
@@ -597,7 +639,7 @@ public class Theme {
                     continue;
                 }
 
-                Typeface font = loadThemeFont(context, resources, resId);
+                Typeface font = loadThemeFont(context, packageName, resources, resId);
                 TYPEFACE_MAP.put(key, font);
                 return font;
             }
@@ -652,11 +694,12 @@ public class Theme {
     }
 
     @androidx.annotation.RequiresApi(26)
-    private static Typeface loadThemeFont(Context context, Resources resources, int id) {
+    private static Typeface loadThemeFont(Context context, String pkg, Resources resources, int id) {
         TypedValue value = new TypedValue();
         resources.getValue(id, value, true);
-        if (value.string == null || value.string.toString().endsWith(".xml")) {
-            return resources.getFont(id);
+        if (value.string == null) return resources.getFont(id);
+        if (value.string.toString().endsWith(".xml")) {
+            return loadThemeFamily(context, pkg, resources, id, value);
         }
         // Android can reuse a typeface by APK package and asset name after an in-place update.
         // Read the current binary once per resource-cache generation, including compressed fonts.
@@ -666,6 +709,30 @@ public class Theme {
             Log.w(TAG, "Unable to read font " + value.string, e);
             return resources.getFont(id);
         }
+    }
+
+    @androidx.annotation.RequiresApi(26)
+    @SuppressLint("RestrictedApi")
+    private static Typeface loadThemeFamily(Context host, String pkg, Resources resources, int id, TypedValue value) {
+        // Resources.getFont and ResourcesCompat.getFont both cache by package and resource path.
+        // Parse the installed family again after our revision cache is invalidated. AndroidX's
+        // family builder retains weights, italic faces, variation settings and TTC indices.
+        try (XmlResourceParser parser = resources.getXml(id)) {
+            FontResourcesParserCompat.FamilyResourceEntry family = FontResourcesParserCompat.parse(parser, resources);
+            if (family instanceof FontResourcesParserCompat.FontFamilyFilesResourceEntry) {
+                Context theme = getContext(host, pkg);
+                if (theme != null) {
+                    String path = theme.getPackageCodePath() + "/" + value.string;
+                    Typeface result = TypefaceCompat.createFromResourcesFamilyXml(theme, family, resources, id,
+                            path, value.assetCookie, Typeface.NORMAL, null, null, false);
+                    if (result != null) return result;
+                }
+            }
+        } catch (IOException | XmlPullParserException malformed) {
+            Log.w(TAG, "Unable to parse theme font family " + value.string, malformed);
+        }
+        // Provider-backed families retain the framework's provider and certificate handling.
+        return resources.getFont(id);
     }
 
     private static Typeface readFont(Context context, InputStream input) throws IOException {
