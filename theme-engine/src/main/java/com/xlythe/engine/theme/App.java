@@ -3,6 +3,7 @@ package com.xlythe.engine.theme;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ResolveInfo;
 
 import androidx.annotation.NonNull;
@@ -31,16 +32,26 @@ public class App implements Serializable {
 
     public static App getApp(Context context, String packageName) {
         PackageManager manager = context.getPackageManager();
-        ResolveInfo info = manager.resolveActivity(manager.getLaunchIntentForPackage(packageName), 0);
-        return new App(info.loadLabel(manager).toString(), packageName);
+        Intent launch = manager.getLaunchIntentForPackage(packageName);
+        ResolveInfo launcher = launch == null ? null : manager.resolveActivity(launch, 0);
+        if (launcher != null) return new App(launcher.loadLabel(manager).toString(), packageName);
+        try {
+            ApplicationInfo info = manager.getApplicationInfo(packageName, 0);
+            return new App(info.loadLabel(manager).toString(), packageName);
+        } catch (PackageManager.NameNotFoundException missing) {
+            return new App(packageName, packageName);
+        }
     }
 
     public String getName() {
         return name;
     }
 
+    /** Returns null when the package has no launcher activity or is no longer installed. */
+    @Nullable
     public Intent getIntent(Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        if (intent == null) return null;
         int flags =
                 Intent.FLAG_ACTIVITY_MULTIPLE_TASK
                         | Intent.FLAG_ACTIVITY_NEW_TASK

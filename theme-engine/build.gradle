@@ -6,7 +6,10 @@ Properties projectProperties = new Properties()
 projectProperties.load(rootProject.file('gradle.properties').newDataInputStream())
 
 Properties localProperties = new Properties()
-localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { localProperties.load(it) }
+}
 
 android {
     compileSdkVersion 33
@@ -15,6 +18,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 33
     }
+    testOptions.unitTests.includeAndroidResources = true
     lintOptions {
         abortOnError false
     }
@@ -83,7 +87,9 @@ signing {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.12.2'
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'androidx.legacy:legacy-support-v4:[1.0.0,)'
-    api 'androidx.appcompat:appcompat:[1.5.0,)'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    api 'androidx.appcompat:appcompat:1.6.1'
 }

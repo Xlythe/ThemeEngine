@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,24 +71,6 @@ public class Theme {
 
     private static final Map<String, BroadcastReceiver> sAppTrackingReceivers = new HashMap<>();
 
-    private static void clearCacheForPackage(Context context, String packageName) {
-        String prefix = getKey(context, packageName) + "_";
-        remove(TYPEFACE_MAP, prefix);
-        Log.d(TAG, String.format("Cache cleared for %s", packageName));
-    }
-
-    private static void remove(Map<String, ?> cache, String prefix) {
-        Set<String> keysToRemove = new HashSet<>();
-        for (String key : cache.keySet()) {
-            if (key.startsWith(prefix)) {
-                keysToRemove.add(key);
-            }
-        }
-        for (String key : keysToRemove) {
-            cache.remove(key);
-        }
-    }
-
     /**
      * Allows you to proxy as another application
      *
@@ -99,23 +82,17 @@ public class Theme {
     }
 
     @UiThread
-    static String getPackageOverride() {
-        return sPackageOverride;
-    }
-
-    @UiThread
     public static Context getThemeContext(Context context) {
         return getContext(context, getPackageName());
     }
 
     private static Context getContext(Context context, String packageName) {
-        if (context.getPackageName().equals(packageName)) {
+        if (packageName == null || context.getPackageName().equals(packageName)) {
             return context;
         }
 
         try {
-            return context.createPackageContext(
-                    packageName, Context.CONTEXT_INCLUDE_CODE + Context.CONTEXT_IGNORE_SECURITY);
+            return context.createPackageContext(packageName, 0);
         } catch (NameNotFoundException e) {
             Log.e(TAG, "Failed to create a context", e);
         }
@@ -129,7 +106,7 @@ public class Theme {
     }
 
     private static Resources getResources(Context context, String packageName) {
-        if (context.getPackageName().equals(packageName)) {
+        if (packageName == null || context.getPackageName().equals(packageName)) {
             return context.getResources();
         }
 
@@ -165,7 +142,7 @@ public class Theme {
                             return;
                         }
 
-                        clearCacheForPackage(context, packageName);
+                        if (Arrays.asList(sPackageNames).contains(packageName)) TYPEFACE_MAP.clear();
                         try {
                             context.getApplicationContext().unregisterReceiver(this);
                         } catch (IllegalArgumentException e) {
@@ -449,17 +426,15 @@ public class Theme {
 
     @UiThread
     public static void setPackageName(@Nullable String packageName) {
-        if (packageName == null) {
-            sPackageNames = new String[0];
-            return;
-        }
-
-        sPackageNames = new String[] {packageName};
+        setPackageNames(packageName == null ? new String[0] : new String[] {packageName});
     }
 
     @UiThread
     public static void setPackageNames(String... packageNames) {
-        sPackageNames = packageNames;
+        if (!Arrays.equals(sPackageNames, packageNames)) {
+            sPackageNames = packageNames.clone();
+            TYPEFACE_MAP.clear();
+        }
     }
 
     @UiThread
@@ -534,7 +509,7 @@ public class Theme {
 
     @UiThread
     public static void setFont(Context context, Typeface typeface) {
-        TYPEFACE_MAP.put(getKey(context) + "_" + "font", typeface);
+        TYPEFACE_MAP.put(context.getPackageName() + ":font", typeface);
     }
 
     @UiThread
@@ -558,7 +533,7 @@ public class Theme {
     @UiThread
     @Nullable
     public static Typeface getFont(Context context, String name) {
-        String key = getKey(context) + "_" + name;
+        String key = context.getPackageName() + ":" + name;
         if (TYPEFACE_MAP.containsKey(key)) {
             return TYPEFACE_MAP.get(key);
         }
@@ -579,6 +554,7 @@ public class Theme {
 
         String[] extensions = {".ttf", ".otf"};
         for (String packageName : sPackageNames) {
+            registerReinstallReceiver(context, packageName);
             for (String s : extensions) {
                 try {
                     // Use cursor loader to grab font
@@ -694,14 +670,6 @@ public class Theme {
         }
 
         return apps;
-    }
-
-    private static String getKey(Context context) {
-        return getKey(context, getPackageName());
-    }
-
-    private static String getKey(Context context, String packageName) {
-        return context.getPackageName() + "_" + packageName;
     }
 
     public static class Res {
