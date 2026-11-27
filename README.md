@@ -7,13 +7,19 @@ Where to Download
 -----------------
 ```groovy
 dependencies {
-  implementation 'com.xlythe:theme-engine:2.1.1'
+  implementation 'com.xlythe:theme-engine:3.0.0'
 }
 ```
 
 ### Jetpack Compose
 
-The optional `com.xlythe:theme-engine-compose` artifact supports API 21 and newer. It depends on the matching core version. To try this PR from source, add `implementation(project(":theme-engine-compose"))` to a Compose-enabled app in the build.
+For a Compose app on API 21 or newer, add the Compose artifact. It brings in the matching core library.
+
+```groovy
+dependencies {
+  implementation 'com.xlythe:theme-engine-compose:3.0.0'
+}
+```
 
 Wrap the screen once and map your host resource IDs to Material 3 roles. ThemeEngine resolves each ID by name through the configured theme APKs, then the host. Other roles inherit the surrounding Material theme.
 
