@@ -205,6 +205,30 @@ public class Theme {
         return getResources(context).getIdentifier(name, type, getPackageName());
     }
 
+    private static final class ResourceValue {
+        final Resources resources;
+        final int id;
+
+        ResourceValue(Resources resources, int id) {
+            this.resources = resources;
+            this.id = id;
+        }
+    }
+
+    private static ResourceValue resolve(Context context, String type, String name, int frameworkId) {
+        for (String pkg : getPackageNames(context)) {
+            Resources resources = getResources(context, pkg);
+            int id = resources.getIdentifier(name, type, pkg);
+            if (id != 0) return new ResourceValue(resources, id);
+        }
+        // A styled attribute may point to a framework resource with no theme or host override.
+        Resources host = context.getResources();
+        if (frameworkId != 0 && type.equals(host.getResourceTypeName(frameworkId))) {
+            return new ResourceValue(host, frameworkId);
+        }
+        throw new IllegalArgumentException("Resource " + name + " not found");
+    }
+
     /** Gets string from theme apk */
     @UiThread
     public static String getString(Context context, @StringRes int resId) {
@@ -214,23 +238,18 @@ public class Theme {
     /** Gets string from theme apk */
     @UiThread
     public static String getString(Context context, Res res) {
-        return getString(context, res.getName());
+        return getString(context, res.getName(), res.frameworkId);
     }
 
     /** Gets string from theme apk */
     @UiThread
     public static String getString(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, STRING, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getString(context, name, 0);
+    }
 
-            return resources.getString(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static String getString(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, STRING, name, frameworkId);
+        return value.resources.getString(value.id);
     }
 
     /** Gets boolean from theme apk */
@@ -242,23 +261,18 @@ public class Theme {
     /** Gets boolean from theme apk */
     @UiThread
     public static boolean getBoolean(Context context, Res res) {
-        return getBoolean(context, res.getName());
+        return getBoolean(context, res.getName(), res.frameworkId);
     }
 
     /** Gets boolean from theme apk */
     @UiThread
     public static boolean getBoolean(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, BOOLEAN, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getBoolean(context, name, 0);
+    }
 
-            return resources.getBoolean(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static boolean getBoolean(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, BOOLEAN, name, frameworkId);
+        return value.resources.getBoolean(value.id);
     }
 
     /** Gets integer from theme apk */
@@ -270,23 +284,18 @@ public class Theme {
     /** Gets integer from theme apk */
     @UiThread
     public static int getInt(Context context, Res res) {
-        return getInt(context, res.getName());
+        return getInt(context, res.getName(), res.frameworkId);
     }
 
     /** Gets integer from theme apk */
     @UiThread
     public static int getInt(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, INTEGER, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getInt(context, name, 0);
+    }
 
-            return resources.getInteger(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static int getInt(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, INTEGER, name, frameworkId);
+        return value.resources.getInteger(value.id);
     }
 
     /** Gets dimen from theme apk */
@@ -298,23 +307,18 @@ public class Theme {
     /** Gets dimen from theme apk */
     @UiThread
     public static float getDimen(Context context, Res res) {
-        return getDimen(context, res.getName());
+        return getDimen(context, res.getName(), res.frameworkId);
     }
 
     /** Gets dimen from theme apk */
     @UiThread
     public static float getDimen(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, DIMEN, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getDimen(context, name, 0);
+    }
 
-            return resources.getDimension(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static float getDimen(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, DIMEN, name, frameworkId);
+        return value.resources.getDimension(value.id);
     }
 
     /** Gets drawable from theme apk */
@@ -326,27 +330,19 @@ public class Theme {
     /** Gets drawable from theme apk */
     @UiThread
     public static Drawable getDrawable(Context context, Res res) {
-        return getDrawable(context, res.getName());
+        return getDrawable(context, res.getName(), res.frameworkId);
     }
 
     /** Gets drawable from theme apk */
     @UiThread
     public static Drawable getDrawable(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, DRAWABLE, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getDrawable(context, name, 0);
+    }
 
-            if (Build.VERSION.SDK_INT >= 21) {
-                return resources.getDrawable(resId, context.getTheme());
-            } else {
-                return resources.getDrawable(resId);
-            }
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static Drawable getDrawable(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, DRAWABLE, name, frameworkId);
+        if (Build.VERSION.SDK_INT >= 21) return value.resources.getDrawable(value.id, context.getTheme());
+        return value.resources.getDrawable(value.id);
     }
 
     /** Gets color from theme apk */
@@ -360,24 +356,19 @@ public class Theme {
     @ColorInt
     @UiThread
     public static int getColor(Context context, Res res) {
-        return getColor(context, res.getName());
+        return getColor(context, res.getName(), res.frameworkId);
     }
 
     /** Gets color from theme apk */
     @ColorInt
     @UiThread
     public static int getColor(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, COLOR, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getColor(context, name, 0);
+    }
 
-            return resources.getColor(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static int getColor(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, COLOR, name, frameworkId);
+        return value.resources.getColor(value.id);
     }
 
     /** Gets color from theme apk */
@@ -389,23 +380,18 @@ public class Theme {
     /** Gets color from theme apk */
     @UiThread
     public static ColorStateList getColorStateList(Context context, Res res) {
-        return getColorStateList(context, res.getName());
+        return getColorStateList(context, res.getName(), res.frameworkId);
     }
 
     /** Gets color from theme apk */
     @UiThread
     public static ColorStateList getColorStateList(Context context, String name) {
-        for (String packageName : getPackageNames(context)) {
-            Resources resources = getResources(context, packageName);
-            int resId = resources.getIdentifier(name, COLOR, packageName);
-            if (resId == 0) {
-                continue;
-            }
+        return getColorStateList(context, name, 0);
+    }
 
-            return resources.getColorStateList(resId);
-        }
-
-        throw new IllegalArgumentException("Resource " + name + " not found");
+    private static ColorStateList getColorStateList(Context context, String name, int frameworkId) {
+        ResourceValue value = resolve(context, COLOR, name, frameworkId);
+        return value.resources.getColorStateList(value.id);
     }
 
     /** Gets android theme from theme apk. Can be 0 (no theme). */
@@ -479,9 +465,9 @@ public class Theme {
         if (resId == 0) {
             return null;
         }
-        return new Res(
-                context.getResources().getResourceTypeName(resId),
-                context.getResources().getResourceEntryName(resId));
+        Resources resources = context.getResources();
+        int frameworkId = "android".equals(resources.getResourcePackageName(resId)) ? resId : 0;
+        return new Res(frameworkId, resources.getResourceTypeName(resId), resources.getResourceEntryName(resId));
     }
 
     @UiThread
@@ -747,7 +733,10 @@ public class Theme {
         private final String type;
         private final String name;
 
-        private Res(String type, String name) {
+        private final int frameworkId;
+
+        private Res(int frameworkId, String type, String name) {
+            this.frameworkId = frameworkId;
             this.type = type;
             this.name = name;
         }

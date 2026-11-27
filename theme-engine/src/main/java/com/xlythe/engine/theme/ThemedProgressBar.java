@@ -39,11 +39,11 @@ public class ThemedProgressBar extends ProgressBar {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
         try {
             // Get background
-            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+            setBackground(Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a)));
 
             // Get progress drawable
             setProgressDrawable(
-                    Theme.get(context, a.getResourceId(R.styleable.theme_themedProgressDrawable, 0)));
+                    Theme.get(context, WidgetAttribute.PROGRESS_DRAWABLE.resourceId(a)));
         } finally {
             a.recycle();
         }

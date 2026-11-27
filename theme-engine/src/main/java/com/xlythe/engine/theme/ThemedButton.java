@@ -45,21 +45,21 @@ public class ThemedButton extends AppCompatButton {
     TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
     try {
       // Get text color
-      setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColor, 0)));
+      setTextColor(Theme.get(context, WidgetAttribute.TEXT_COLOR.resourceId(a)));
 
       // Get text hint color
       setHintTextColor(
-              Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorHint, 0)));
+              Theme.get(context, WidgetAttribute.TEXT_COLOR_HINT.resourceId(a)));
 
       // Get text link color
       setLinkTextColor(
-              Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorLink, 0)));
+              Theme.get(context, WidgetAttribute.TEXT_COLOR_LINK.resourceId(a)));
 
       // Get text size
-      setTextSize(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextSize, 0)));
+      setTextSize(Theme.get(context, WidgetAttribute.TEXT_SIZE.resourceId(a)));
 
       // Get background
-      setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+      setBackground(Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a)));
 
       // Get custom font
       setupFont(context, a);
@@ -69,12 +69,12 @@ public class ThemedButton extends AppCompatButton {
   }
 
   private void setupFont(Context context, TypedArray a) {
-    int id = a.getResourceId(R.styleable.theme_themedFont, 0);
-    if (id != 0) {
+    int id = WidgetAttribute.FONT.resourceId(a);
+    if (id != 0 && !Theme.STRING.equals(context.getResources().getResourceTypeName(id))) {
       setFont(Theme.get(context, id));
       return;
     }
-    String font = a.getString(R.styleable.theme_themedFont);
+    String font = WidgetAttribute.FONT.string(a);
     if (font != null) {
       setFont(font);
       return;
@@ -82,8 +82,8 @@ public class ThemedButton extends AppCompatButton {
 
     // If no font was specified, look up the text style.
     setTextStyle(
-            Theme.get(context, a.getResourceId(R.styleable.theme_themedFontFamily, 0)),
-            Theme.get(context, a.getResourceId(R.styleable.theme_themedTextStyle, 0)));
+            Theme.get(context, WidgetAttribute.FONT_FAMILY.resourceId(a)),
+            Theme.get(context, WidgetAttribute.TEXT_STYLE.resourceId(a)));
   }
 
   @UiThread

@@ -39,10 +39,10 @@ public class ThemedImageButton extends AppCompatImageButton {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
         try {
             // Get image
-            setImageDrawable(Theme.get(context, a.getResourceId(R.styleable.theme_themedSrc, 0)));
+            setImageDrawable(Theme.get(context, WidgetAttribute.SRC.resourceId(a)));
 
             // Get background
-            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+            setBackground(Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a)));
         } finally {
             a.recycle();
         }
