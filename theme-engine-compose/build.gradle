@@ -1,0 +1,40 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply from: rootProject.file('publish-library.gradle')
+
+android {
+    namespace "com.xlythe.engine.theme.compose"
+    compileSdkVersion 33
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 33
+    }
+    buildFeatures { compose true }
+    composeOptions { kotlinCompilerExtensionVersion '1.4.8' }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions { jvmTarget = '1.8' }
+    testOptions.unitTests.includeAndroidResources = true
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+dependencies {
+    api project(':theme-engine')
+    api 'androidx.compose.material3:material3:1.1.2'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.12.2'
+    testImplementation 'androidx.compose.ui:ui-test-junit4:1.4.3'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest:1.4.3'
+}
+
+// AGP and the Kotlin plugin both contribute Kotlin source roots to this archive.
+tasks.withType(Jar).matching { it.name == 'releaseSourcesJar' }.configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

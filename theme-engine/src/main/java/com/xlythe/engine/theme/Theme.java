@@ -12,6 +12,7 @@ import android.content.pm.ResolveInfo;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -21,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import androidx.annotation.AnyRes;
 import androidx.annotation.BoolRes;
 import androidx.annotation.ColorInt;
@@ -34,7 +36,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,6 +63,27 @@ public class Theme {
     static final String TAG = "Theme";
 
     private static final Map<String, Typeface> TYPEFACE_MAP = new HashMap<>();
+
+    private static final Map<String, Typeface> defaultFontOverrides = new HashMap<>();
+    private static Configuration fontConfiguration;
+    private static long revision;
+    private static final Set<Runnable> changeListeners = new HashSet<>();
+
+    /** Changes when the selected themes, their installed resources or the default font change. */
+    @UiThread
+    public static long getRevision() { return revision; }
+
+    /** Register on the main thread. Remove the listener when its owner is disposed. */
+    @UiThread
+    public static void addChangeListener(@NonNull Runnable listener) { changeListeners.add(listener); }
+
+    @UiThread
+    public static void removeChangeListener(@NonNull Runnable listener) { changeListeners.remove(listener); }
+
+    private static void notifyThemeChanged() {
+        revision++;
+        for (Runnable listener : new ArrayList<>(changeListeners)) listener.run();
+    }
 
     // A list of themes to apply to the app. If empty, there is no theme set. Most apps will only
     // specify a single theme, but some may specify more. In the later case, resources will be loaded
@@ -112,7 +136,13 @@ public class Theme {
 
         registerReinstallReceiver(context, packageName);
         try {
-            return context.getPackageManager().getResourcesForApplication(packageName);
+            Resources resources = context.getPackageManager().getResourcesForApplication(packageName);
+            Configuration hostConfig = context.getResources().getConfiguration();
+            if (Build.VERSION.SDK_INT >= 17 && !hostConfig.equals(resources.getConfiguration())) {
+                Context theme = context.createPackageContext(packageName, 0);
+                return theme.createConfigurationContext(hostConfig).getResources();
+            }
+            return resources;
         } catch (NameNotFoundException e) {
             Log.v(
                     TAG,
@@ -142,13 +172,17 @@ public class Theme {
                             return;
                         }
 
-                        if (Arrays.asList(sPackageNames).contains(packageName)) TYPEFACE_MAP.clear();
                         try {
                             context.getApplicationContext().unregisterReceiver(this);
                         } catch (IllegalArgumentException e) {
                             // ignored
                         }
                         sAppTrackingReceivers.remove(packageName);
+                        if (Arrays.asList(sPackageNames).contains(packageName)) {
+                            TYPEFACE_MAP.clear();
+                            defaultFontOverrides.clear();
+                            notifyThemeChanged();
+                        }
                     }
                 };
 
@@ -434,6 +468,8 @@ public class Theme {
         if (!Arrays.equals(sPackageNames, packageNames)) {
             sPackageNames = packageNames.clone();
             TYPEFACE_MAP.clear();
+            defaultFontOverrides.clear();
+            notifyThemeChanged();
         }
     }
 
@@ -507,9 +543,20 @@ public class Theme {
         throw new IllegalArgumentException("Resource " + res + " not found");
     }
 
+    private static void checkFontConfiguration(Context context) {
+        Configuration current = context.getResources().getConfiguration();
+        if (!current.equals(fontConfiguration)) {
+            fontConfiguration = new Configuration(current);
+            TYPEFACE_MAP.clear();
+        }
+    }
+
     @UiThread
     public static void setFont(Context context, Typeface typeface) {
-        TYPEFACE_MAP.put(context.getPackageName() + ":font", typeface);
+        String host = context.getPackageName();
+        if (defaultFontOverrides.containsKey(host) && defaultFontOverrides.get(host) == typeface) return;
+        defaultFontOverrides.put(host, typeface);
+        notifyThemeChanged();
     }
 
     @UiThread
@@ -533,6 +580,10 @@ public class Theme {
     @UiThread
     @Nullable
     public static Typeface getFont(Context context, String name) {
+        if ("font".equals(name) && defaultFontOverrides.containsKey(context.getPackageName())) {
+            return defaultFontOverrides.get(context.getPackageName());
+        }
+        checkFontConfiguration(context);
         String key = context.getPackageName() + ":" + name;
         if (TYPEFACE_MAP.containsKey(key)) {
             return TYPEFACE_MAP.get(key);
@@ -546,7 +597,7 @@ public class Theme {
                     continue;
                 }
 
-                Typeface font = resources.getFont(resId);
+                Typeface font = loadThemeFont(context, resources, resId);
                 TYPEFACE_MAP.put(key, font);
                 return font;
             }
@@ -559,25 +610,14 @@ public class Theme {
                 try {
                     // Use cursor loader to grab font
                     Uri uri = Uri.parse("content://" + packageName + ".FileProvider/" + name + s);
-                    AssetFileDescriptor a = context.getContentResolver().openAssetFileDescriptor(uri, "r");
-                    FileInputStream in = new FileInputStream(a.getFileDescriptor());
-                    in.skip(a.getStartOffset());
-                    File file = new File(context.getCacheDir(), name + s);
-                    file.delete();
-                    file.createNewFile();
-                    FileOutputStream fOutput = new FileOutputStream(file);
-                    byte[] dataBuffer = new byte[1024];
-                    int readLength = 0;
-                    while ((readLength = in.read(dataBuffer)) != -1) {
-                        fOutput.write(dataBuffer, 0, readLength);
+                    try (AssetFileDescriptor asset = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
+                        if (asset == null) continue;
+                        try (InputStream input = asset.createInputStream()) {
+                            Typeface font = readFont(context, input);
+                            TYPEFACE_MAP.put(key, font);
+                            return font;
+                        }
                     }
-                    in.close();
-                    fOutput.close();
-
-                    // Try/catch for broken fonts
-                    Typeface t = Typeface.createFromFile(file);
-                    TYPEFACE_MAP.put(key, t);
-                    return TYPEFACE_MAP.get(key);
                 } catch (Exception e) {
                     // Do nothing
                 }
@@ -609,6 +649,37 @@ public class Theme {
         // No typeface was found.
         TYPEFACE_MAP.put(key, null);
         return null;
+    }
+
+    @androidx.annotation.RequiresApi(26)
+    private static Typeface loadThemeFont(Context context, Resources resources, int id) {
+        TypedValue value = new TypedValue();
+        resources.getValue(id, value, true);
+        if (value.string == null || value.string.toString().endsWith(".xml")) {
+            return resources.getFont(id);
+        }
+        // Android can reuse a typeface by APK package and asset name after an in-place update.
+        // Read the current binary once per resource-cache generation, including compressed fonts.
+        try (InputStream input = resources.openRawResource(id)) {
+            return readFont(context, input);
+        } catch (IOException e) {
+            Log.w(TAG, "Unable to read font " + value.string, e);
+            return resources.getFont(id);
+        }
+    }
+
+    private static Typeface readFont(Context context, InputStream input) throws IOException {
+        File file = File.createTempFile("theme-font-", ".tmp", context.getCacheDir());
+        try {
+            try (FileOutputStream output = new FileOutputStream(file)) {
+                byte[] buffer = new byte[8192];
+                int count;
+                while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+            }
+            return Typeface.createFromFile(file);
+        } finally {
+            if (!file.delete()) Log.w(TAG, "Unable to remove temporary font");
+        }
     }
 
     /** Returns a list of installed apps that are registered as themes */
