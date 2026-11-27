@@ -11,14 +11,16 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatSpinner;
 
 public class ThemedSpinner extends AppCompatSpinner {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedSpinner(Context context) {
         super(context);
-        setup(context, null, 0, 0);
+        setup(getContext(), null, androidx.appcompat.R.attr.spinnerStyle, 0);
     }
 
     public ThemedSpinner(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs, 0, 0);
+        setup(getContext(), attrs, androidx.appcompat.R.attr.spinnerStyle, 0);
     }
 
     @SuppressLint("NewApi")
@@ -27,27 +29,36 @@ public class ThemedSpinner extends AppCompatSpinner {
         setup(context, attrs, defStyleAttr, 0);
     }
 
-    @TargetApi(21)
-    public ThemedSpinner(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        setup(context, attrs, defStyleAttr, defStyleRes);
+    public ThemedSpinner(Context context, int mode) {
+        this(context, null, androidx.appcompat.R.attr.spinnerStyle, mode);
+    }
+
+    public ThemedSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
+        this(context, attrs, defStyleAttr, 0, mode);
+    }
+
+    public ThemedSpinner(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes, int mode) {
+        this(context, attrs, defStyleAttr, defStyleRes, mode, null);
+    }
+
+    public ThemedSpinner(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes,
+            int mode, @Nullable android.content.res.Resources.Theme popupTheme) {
+        super(WidgetStyle.withFallback(context, defStyleAttr, defStyleRes), attrs, defStyleAttr, mode, popupTheme);
+        setup(getContext(), attrs, defStyleAttr, defStyleRes);
     }
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a =
-                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
-            if (a != null) {
-                // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        try {
+            // Get background
+            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
-                // Get popup background
-                setPopupBackground(
-                        Theme.get(context, a.getResourceId(R.styleable.theme_themedPopupBackground, 0)));
-
-                a.recycle();
-            }
+            // Get popup background
+            setPopupBackground(
+                    Theme.get(context, a.getResourceId(R.styleable.theme_themedPopupBackground, 0)));
+        } finally {
+            a.recycle();
         }
     }
 
@@ -80,21 +91,17 @@ public class ThemedSpinner extends AppCompatSpinner {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setHeight(this, res);
+    }
+
+    @Override
+    public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
+        if (dimensions != null) dimensions.applyTo(params);
+        super.setLayoutParams(params);
     }
 }

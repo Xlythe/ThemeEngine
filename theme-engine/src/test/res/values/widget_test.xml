@@ -1,0 +1,11 @@
+<resources>
+    <dimen name="widget_test_width">37px</dimen>
+    <string name="widget_test_hint">Find albums</string>
+    <style name="NativeWidgetTestStyle"><item name="android:textSize">47px</item></style>
+    <style name="WidgetTestDefaults" parent="@android:style/Widget.Material.SearchView">
+        <item name="android:textSize">47px</item>
+        <item name="themedQueryHint">@string/widget_test_hint</item>
+        <item name="themedTint">@color/widget_test_tint</item>
+        <item name="themedTextSize">@dimen/widget_test_width</item>
+    </style>
+</resources>

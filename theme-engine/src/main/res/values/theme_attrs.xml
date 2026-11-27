@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="theme">
-        <!--
-            Due to limitations in aapt, every attribute name must be globally unique. The name of
-            the styleable we set above is erased during compilation. Therefore, we namespace
-            ourselves with "themed" to not conflict with similarly named attributes in the support
-            library.
-        -->
+        <!-- Styleable groups can share the same R.attr ID. Prefix public attributes to avoid
+             collisions when an app merges this library's resources with other dependencies. -->
         <attr name="themedButton" format="reference" />
         <attr name="themedButtonTint" format="reference" />
         <attr name="themedTextSize" format="reference" />
@@ -22,5 +18,11 @@
         <attr name="themedFontFamily" format="reference" />
         <attr name="themedTextStyle" format="reference" />
         <attr name="themedTint" format="reference" />
+        <attr name="themedThumb" format="reference" />
+        <attr name="themedIndeterminateDrawable" format="reference" />
+        <attr name="themedQueryHint" format="reference" />
+        <attr name="themedDropDownBackground" format="reference" />
+        <attr name="themedTitleTextColor" format="reference" />
+        <attr name="themedSubtitleTextColor" format="reference" />
     </declare-styleable>
 </resources>

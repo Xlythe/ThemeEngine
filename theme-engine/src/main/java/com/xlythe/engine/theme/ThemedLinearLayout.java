@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 public class ThemedLinearLayout extends LinearLayout {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedLinearLayout(Context context) {
         super(context);
         setup(context, null, 0, 0);
@@ -35,18 +37,15 @@ public class ThemedLinearLayout extends LinearLayout {
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        if (attrs != null) {
-            TypedArray a =
-                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
-            if (a != null) {
-                // Get divider
-                setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themedDivider, 0)));
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        try {
+            // Get divider
+            setDivider(Theme.get(context, a.getResourceId(R.styleable.theme_themedDivider, 0)));
 
-                // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
-
-                a.recycle();
-            }
+            // Get background
+            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+        } finally {
+            a.recycle();
         }
     }
 
@@ -81,21 +80,17 @@ public class ThemedLinearLayout extends LinearLayout {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setHeight(this, res);
+    }
+
+    @Override
+    public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
+        if (dimensions != null) dimensions.applyTo(params);
+        super.setLayoutParams(params);
     }
 }

@@ -13,14 +13,16 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatEditText;
 
 public class ThemedEditText extends AppCompatEditText {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedEditText(Context context) {
         super(context);
-        setup(context, null, 0, 0);
+        setup(getContext(), null, androidx.appcompat.R.attr.editTextStyle, 0);
     }
 
     public ThemedEditText(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setup(context, attrs, 0, 0);
+        setup(getContext(), attrs, androidx.appcompat.R.attr.editTextStyle, 0);
     }
 
     public ThemedEditText(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -30,8 +32,8 @@ public class ThemedEditText extends AppCompatEditText {
 
     @TargetApi(21)
     public ThemedEditText(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr);
-        setup(context, attrs, defStyleAttr, defStyleRes);
+        super(WidgetStyle.withFallback(context, defStyleAttr, defStyleRes), attrs, defStyleAttr);
+        setup(getContext(), attrs, defStyleAttr, defStyleRes);
     }
 
     private void setup(
@@ -39,49 +41,42 @@ public class ThemedEditText extends AppCompatEditText {
         // Get font
         setDefaultFont();
 
-        if (attrs != null) {
-            TypedArray a =
-                    context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
-            if (a != null) {
-                // Get text color
-                setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColor, 0)));
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        try {
+            // Get text color
+            setTextColor(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColor, 0)));
 
-                // Get text hint color
-                setHintTextColor(
-                        Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorHint, 0)));
+            // Get text hint color
+            setHintTextColor(
+                    Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorHint, 0)));
 
-                // Get text link color
-                setLinkTextColor(
-                        Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorLink, 0)));
+            // Get text link color
+            setLinkTextColor(
+                    Theme.get(context, a.getResourceId(R.styleable.theme_themedTextColorLink, 0)));
 
-                // Get text size
-                setTextSize(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextSize, 0)));
+            // Get text size
+            setTextSize(Theme.get(context, a.getResourceId(R.styleable.theme_themedTextSize, 0)));
 
-                // Get background
-                setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+            // Get background
+            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
 
-                // Get custom font
-                setupFont(context, a);
-
-                a.recycle();
-            }
+            // Get custom font
+            setupFont(context, a);
+        } finally {
+            a.recycle();
         }
     }
 
     private void setupFont(Context context, TypedArray a) {
-        if (Build.VERSION.SDK_INT < 21) {
+        int id = a.getResourceId(R.styleable.theme_themedFont, 0);
+        if (id != 0) {
+            setFont(Theme.get(context, id));
             return;
         }
-
-        // In v26, /res/font was added. Older versions may set a string while newer versions may
-        // explicitly reference a font.
-        switch (a.getType(R.styleable.theme_themedFont)) {
-            case TypedValue.TYPE_ATTRIBUTE:
-                setFont(Theme.get(context, a.getResourceId(R.styleable.theme_themedFont, 0)));
-                return;
-            case TypedValue.TYPE_STRING:
-                setFont(a.getString(R.styleable.theme_themedFont));
-                return;
+        String font = a.getString(R.styleable.theme_themedFont);
+        if (font != null) {
+            setFont(font);
+            return;
         }
 
         // If no font was specified, look up the text style.
@@ -190,21 +185,17 @@ public class ThemedEditText extends AppCompatEditText {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().width = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        if (res != null) {
-            if (Theme.DIMEN.equals(res.getType())) {
-                getLayoutParams().height = (int) Theme.getDimen(getContext(), res);
-                requestLayout();
-            }
-        }
+        dimensions.setHeight(this, res);
+    }
+
+    @Override
+    public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
+        if (dimensions != null) dimensions.applyTo(params);
+        super.setLayoutParams(params);
     }
 }

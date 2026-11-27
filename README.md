@@ -72,3 +72,7 @@ As for the theme apk, it's job is simple. It requires no java code. For starters
 </intent-filter>
 ```
 Then add in any drawables and colors you want to replace. Just name them the same as they are in the main app. For custom fonts, add a font file called "font" to /assets.
+
+### Framework widgets
+
+Custom framework views can call `ThemedWidgets.apply(this, attrs, defStyleAttr, defStyleRes)` after construction. It applies common background properties and the themed properties supported by the widget family.
