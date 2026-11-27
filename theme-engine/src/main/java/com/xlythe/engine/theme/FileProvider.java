@@ -5,10 +5,15 @@ import static com.xlythe.engine.theme.Theme.TAG;
 import android.content.ContentProvider;
 import android.content.ContentProvider.PipeDataWriter;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
@@ -19,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 /** A very simple content provider that can serve arbitrary asset files from our .apk. */
 public class FileProvider extends ContentProvider implements PipeDataWriter<InputStream> {
@@ -97,7 +101,10 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
     @Override
     public AssetFileDescriptor openAssetFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {
-        // Try to open an asset with the given name.
+        verifyCaller();
+        if (!"r".equals(mode) || uri.getPath() == null || uri.getPath().length() < 2) {
+            throw new FileNotFoundException("Expected a read-only asset path");
+        }
         try {
             InputStream is = getContext().getAssets().open(uri.getPath().substring(1));
             // Start a new thread that pipes the stream data back to the caller.
@@ -140,28 +147,39 @@ public class FileProvider extends ContentProvider implements PipeDataWriter<Inpu
         }
     }
 
-    /** Only available on API 19+. Verifies that the caller is a supported theme. */
-    private void verifyCaller() throws SecurityException {
-        if (Build.VERSION.SDK_INT < 19) {
-            return;
-        }
-
-        // We'll query for ourselves to see if we show up as an available theme for this caller.
-        String packageOverride = Theme.getPackageOverride();
-        try {
-            Theme.setPackageOverride(getCallingPackage());
-            List<App> apps = Theme.getApps(getContext());
-            for (App app : apps) {
-                if (app.getPackageName().equals(getContext().getPackageName())) {
-                    return;
+    /** Only hosts this theme declares in its own manifest may read its assets. */
+    private void verifyCaller() {
+        Context context = getContext();
+        PackageManager manager = context.getPackageManager();
+        int uid = Binder.getCallingUid();
+        if (uid == android.os.Process.myUid()) return;
+        String caller = Build.VERSION.SDK_INT >= 19 ? getCallingPackage() : null;
+        if (caller != null) {
+            if (supportsHost(context, caller)) return;
+        } else {
+            // Older releases identify the caller by UID. Packages sharing a UID are one principal.
+            String[] packages = manager.getPackagesForUid(uid);
+            if (packages != null) {
+                for (String host : packages) {
+                    if (supportsHost(context, host)) return;
                 }
             }
-        } finally {
-            // Restore the original override (which may have been null)
-            Theme.setPackageOverride(packageOverride);
         }
+        throw new SecurityException("Theme does not support the calling host");
+    }
 
-        // If we got here, then we couldn't verify the caller.
-        throw new SecurityException("Caller [" + getCallingPackage() + "] is not a registered theme.");
+    private static boolean supportsHost(Context context, String host) {
+        String theme = context.getPackageName();
+        String action = host + ".THEME";
+        PackageManager manager = context.getPackageManager();
+        if (!manager.queryIntentActivities(new Intent(action).setPackage(theme), 0).isEmpty()) {
+            return true;
+        }
+        try {
+            ApplicationInfo app = manager.getApplicationInfo(theme, PackageManager.GET_META_DATA);
+            return app.metaData != null && app.metaData.getBoolean(action, false);
+        } catch (PackageManager.NameNotFoundException missing) {
+            return false;
+        }
     }
 }
