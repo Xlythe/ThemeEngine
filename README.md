@@ -44,10 +44,12 @@ As of Android 11 (API 30), the main app must add this to their AndroidManifest.
 </manifest>
 ```
 
-The main app must make the following call before setContentView. This is only needed in the very first Activity.
+Save the selected theme package name in host preferences and restore it before inflating views or composing the first screen on each process start, including after a host APK update.
 ```java
 Theme.setPackageName(MY_THEME_PACKAGE_NAME);
 ```
+
+When a selected theme APK is updated, installed or removed, ThemeEngine automatically recreates Activities that inflated a themed widget or used `ThemedWidgets.apply`. Stopped Activities refresh on their next start. Compose-only screens recompose in place. For custom rendering that reads resources directly, register a callback with `Theme.addChangeListener` and remove it when the owner is destroyed.
 
 Then you can either automatically grab the images and colors via ThemedView in xml or programmaically set them in java.
 ```xml

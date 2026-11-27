@@ -57,7 +57,7 @@ class ThemeEngineThemeTest {
             }
             override fun getColor(id: Int) = requireNotNull(color)
             override fun getValue(id: Int, outValue: android.util.TypedValue, resolveRefs: Boolean) {
-                outValue.string = "res/font/test.xml"
+                outValue.string = null
             }
             override fun getFont(id: Int) = requireNotNull(font)
         }

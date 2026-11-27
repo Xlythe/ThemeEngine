@@ -36,7 +36,7 @@ public class ThemedRadioGroup extends RadioGroup {
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        TypedArray a = WidgetStyle.obtainAttributes(context, attrs, defStyleAttr, defStyleRes);
         try {
             // Get divider
             setDivider(Theme.get(context, WidgetAttribute.DIVIDER.resourceId(a)));

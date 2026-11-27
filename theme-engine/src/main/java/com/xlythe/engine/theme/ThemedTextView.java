@@ -41,7 +41,7 @@ public class ThemedTextView extends AppCompatTextView {
         // Get font
         setDefaultFont();
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        TypedArray a = WidgetStyle.obtainAttributes(context, attrs, defStyleAttr, defStyleRes);
         try {
             // Get text color
             setTextColor(Theme.get(context, WidgetAttribute.TEXT_COLOR.resourceId(a)));
