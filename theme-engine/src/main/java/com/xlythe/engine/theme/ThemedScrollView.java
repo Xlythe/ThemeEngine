@@ -39,7 +39,7 @@ public class ThemedScrollView extends ScrollView {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
         try {
             // Get background
-            setBackground(Theme.get(context, a.getResourceId(R.styleable.theme_themedBackground, 0)));
+            setBackground(Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a)));
 
             try {
                 if ("none".equals(Theme.getString(getContext(), "requiresFadingEdge"))) {

@@ -75,6 +75,12 @@ As for the theme apk, it's job is simple. It requires no java code. For starters
 ```
 Then add in any drawables and colors you want to replace. Just name them the same as they are in the main app. For custom fonts, add a font file called "font" to /assets.
 
+### XML attribute names
+
+Every widget attribute in the `res-auto` namespace accepts both spellings. For example, `app:button` and `app:themedButton` select the same themed drawable. The same rule applies in styles and to `ThemedWidgets.apply`. When both spellings resolve to a value, the prefixed one wins.
+
+Use resource references with the short names, such as `app:textColor="@color/title"` and `app:font="@font/body"`. AndroidX declares `app:font` as a reference. For an asset font name, use `app:font="@string/body_font_name"` with a string whose value is `body`, or use `app:themedFont="body"` directly.
+
 ### Framework widgets
 
 Custom framework views can call `ThemedWidgets.apply(this, attrs, defStyleAttr, defStyleRes)` after construction. It applies common background properties and the themed properties supported by the widget family.
