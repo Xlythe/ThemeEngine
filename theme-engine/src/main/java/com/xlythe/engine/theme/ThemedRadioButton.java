@@ -14,6 +14,8 @@ import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.core.widget.CompoundButtonCompat;
 
 public class ThemedRadioButton extends AppCompatRadioButton {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedRadioButton(Context context) {
         super(context);
         setup(getContext(), null, androidx.appcompat.R.attr.radioButtonStyle, 0);
@@ -212,17 +214,17 @@ public class ThemedRadioButton extends AppCompatRadioButton {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_width);
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_height);
+        dimensions.setHeight(this, res);
     }
 
     @Override
     public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
-        WidgetStyle.applyPendingDimensions(this, params);
+        if (dimensions != null) dimensions.applyTo(params);
         super.setLayoutParams(params);
     }
 }

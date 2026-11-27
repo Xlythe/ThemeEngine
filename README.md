@@ -55,6 +55,4 @@ Then add in any drawables and colors you want to replace. Just name them the sam
 
 ### Framework widgets
 
-Use `ThemedSeekBar`, `ThemedRatingBar`, `ThemedAutoCompleteTextView`, `ThemedSearchView`, or `ThemedToolbar` in XML. The toolbar requires API 21. The controls accept their normal framework constructor arguments and attributes. For example, `app:themedThumb="@drawable/slider_thumb"` on a themed seek bar loads the thumb from the selected theme with the usual host fallback. Themed search views support `themedQueryHint`, and themed toolbars support `themedTitleTextColor` and `themedSubtitleTextColor`.
-
-Custom framework views can call `ThemedWidgets.apply(this, attrs, defStyleAttr, defStyleRes)` after construction. It applies common background properties and the properties supported by the view's widget family. Existing wrapped views continue to support their themed setters. Width and height chosen before insertion are applied to the layout parameters supplied by the parent.
+Custom framework views can call `ThemedWidgets.apply(this, attrs, defStyleAttr, defStyleRes)` after construction. It applies common background properties and the themed properties supported by the widget family.

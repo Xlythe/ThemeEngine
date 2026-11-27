@@ -13,6 +13,8 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.widget.AppCompatTextView;
 
 public class ThemedTextView extends AppCompatTextView {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedTextView(Context context) {
         super(context);
         setup(getContext(), null, android.R.attr.textViewStyle, 0);
@@ -183,17 +185,17 @@ public class ThemedTextView extends AppCompatTextView {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_width);
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_height);
+        dimensions.setHeight(this, res);
     }
 
     @Override
     public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
-        WidgetStyle.applyPendingDimensions(this, params);
+        if (dimensions != null) dimensions.applyTo(params);
         super.setLayoutParams(params);
     }
 }

@@ -27,30 +27,39 @@ final class WidgetStyle {
         return attr != 0 && context.getTheme().resolveAttribute(attr, value, true) ? value.resourceId : 0;
     }
 
-    static void setDimension(View view, @Nullable Theme.Res res, int axis) {
-        if (res == null || !Theme.DIMEN.equals(res.getType())) return;
-        int pixels = (int) Theme.getDimen(view.getContext(), res);
-        ViewGroup.LayoutParams params = view.getLayoutParams();
-        if (params == null) {
-            view.setTag(axis, pixels);
-            return;
-        }
-        if (axis == R.id.theme_pending_width) params.width = pixels;
-        else params.height = pixels;
-        view.requestLayout();
-    }
+    /** Holds a size chosen before the parent has supplied its own LayoutParams. */
+    static final class Dimensions {
+        private Integer pendingWidth;
+        private Integer pendingHeight;
 
-    static void applyPendingDimensions(View view, ViewGroup.LayoutParams params) {
-        if (params == null) return;
-        Integer width = (Integer) view.getTag(R.id.theme_pending_width);
-        Integer height = (Integer) view.getTag(R.id.theme_pending_height);
-        if (width != null) {
-            params.width = width;
-            view.setTag(R.id.theme_pending_width, null);
+        void setWidth(View view, @Nullable Theme.Res res) {
+            if (res == null || !Theme.DIMEN.equals(res.getType())) return;
+            int pixels = (int) Theme.getDimen(view.getContext(), res);
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            if (params == null) pendingWidth = pixels;
+            else {
+                params.width = pixels;
+                view.requestLayout();
+            }
         }
-        if (height != null) {
-            params.height = height;
-            view.setTag(R.id.theme_pending_height, null);
+
+        void setHeight(View view, @Nullable Theme.Res res) {
+            if (res == null || !Theme.DIMEN.equals(res.getType())) return;
+            int pixels = (int) Theme.getDimen(view.getContext(), res);
+            ViewGroup.LayoutParams params = view.getLayoutParams();
+            if (params == null) pendingHeight = pixels;
+            else {
+                params.height = pixels;
+                view.requestLayout();
+            }
+        }
+
+        void applyTo(ViewGroup.LayoutParams params) {
+            if (params == null) return;
+            if (pendingWidth != null) params.width = pendingWidth;
+            if (pendingHeight != null) params.height = pendingHeight;
+            pendingWidth = null;
+            pendingHeight = null;
         }
     }
 }

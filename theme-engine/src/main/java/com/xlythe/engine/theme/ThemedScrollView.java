@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 public class ThemedScrollView extends ScrollView {
+    private final WidgetStyle.Dimensions dimensions = new WidgetStyle.Dimensions();
+
     public ThemedScrollView(Context context) {
         super(context);
         setup(getContext(), null, android.R.attr.scrollViewStyle, 0);
@@ -70,17 +72,17 @@ public class ThemedScrollView extends ScrollView {
 
     @UiThread
     public void setWidth(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_width);
+        dimensions.setWidth(this, res);
     }
 
     @UiThread
     public void setHeight(@Nullable Theme.Res res) {
-        WidgetStyle.setDimension(this, res, R.id.theme_pending_height);
+        dimensions.setHeight(this, res);
     }
 
     @Override
     public void setLayoutParams(android.view.ViewGroup.LayoutParams params) {
-        WidgetStyle.applyPendingDimensions(this, params);
+        if (dimensions != null) dimensions.applyTo(params);
         super.setLayoutParams(params);
     }
 }
