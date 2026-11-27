@@ -1,5 +1,6 @@
 package com.xlythe.engine.theme;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -11,10 +12,14 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
+import android.view.ContextThemeWrapper;
+import android.view.View;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowBinder;
@@ -142,28 +147,79 @@ public class ThemeTest {
         assertEquals(2, calls[0]);
     }
 
-    @Test public void viewHostRefreshesOnStartAndUnsubscribesOnDestroy() {
-        class Owner implements androidx.lifecycle.LifecycleOwner {
-            final androidx.lifecycle.LifecycleRegistry lifecycle = new androidx.lifecycle.LifecycleRegistry(this);
-            public androidx.lifecycle.Lifecycle getLifecycle() { return lifecycle; }
-        }
-        Owner owner = new Owner();
-        int[] calls = {0};
-        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_CREATE);
-        Theme.observeChanges(owner, () -> calls[0]++);
-        Theme.setPackageName("first");
-        Theme.setPackageName("second");
-        assertEquals(0, calls[0]);
-        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START);
-        assertEquals(1, calls[0]);
-        Theme.setPackageName("third");
-        assertEquals(2, calls[0]);
-        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP);
-        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START);
-        assertEquals(2, calls[0]);
-        owner.lifecycle.handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_DESTROY);
-        Theme.setPackageName(null);
-        assertEquals(2, calls[0]);
+    public static class CountingActivity extends Activity {
+        int recreations;
+        @Override public void recreate() { recreations++; }
+    }
+
+    private void replace(String pkg) {
+        context.sendBroadcast(new Intent(Intent.ACTION_PACKAGE_REPLACED, Uri.parse("package:" + pkg)));
+        shadowOf(Looper.getMainLooper()).idle();
+    }
+
+    @Test @Config(sdk = {21, 28, 33}) public void wrappedWidgetContextsAutomaticallyRefreshOneHost() {
+        String pkg = "theme.active";
+        Theme.setPackageName(pkg);
+        ActivityController<CountingActivity> screen =
+                Robolectric.buildActivity(CountingActivity.class).create();
+        CountingActivity activity = screen.get();
+        Context wrapped = new ContextThemeWrapper(activity, androidx.appcompat.R.style.Theme_AppCompat);
+        activity.setContentView(new ThemedView(wrapped));
+        new ThemedTextView(wrapped);
+        screen.start().resume().visible();
+        Theme.getResources(wrapped);
+        replace("theme.unrelated");
+        assertEquals(0, activity.recreations);
+        replace(pkg);
+        assertEquals(1, activity.recreations);
+        screen.pause().stop().destroy();
+    }
+
+    @Test @Config(sdk = {21, 28, 33}) public void stoppedCustomWidgetHostCoalescesChanges() {
+        String pkg = "theme.stopped";
+        Theme.setPackageName(pkg);
+        ActivityController<CountingActivity> screen =
+                Robolectric.buildActivity(CountingActivity.class).setup();
+        CountingActivity activity = screen.get();
+        View custom = new View(activity);
+        ThemedWidgets.apply(custom, null, 0, 0);
+        screen.pause().stop();
+        Theme.getResources(activity);
+        replace(pkg);
+        Theme.getResources(activity);
+        replace(pkg);
+        assertEquals(0, activity.recreations);
+        screen.restart().start().resume();
+        shadowOf(Looper.getMainLooper()).idle();
+        assertEquals(1, activity.recreations);
+        screen.pause().stop().destroy();
+    }
+
+    @Test public void directResourceReadsDoNotRecreateActivity() {
+        String pkg = "theme.compose";
+        Theme.setPackageName(pkg);
+        ActivityController<CountingActivity> screen =
+                Robolectric.buildActivity(CountingActivity.class).setup();
+        Theme.getResources(screen.get());
+        new ThemedView(context);
+        replace(pkg);
+        assertEquals(0, screen.get().recreations);
+        screen.pause().stop().destroy();
+    }
+
+    @Test public void destroyedWidgetHostSkipsPendingRefresh() {
+        String pkg = "theme.destroyed";
+        Theme.setPackageName(pkg);
+        ActivityController<CountingActivity> screen = Robolectric.buildActivity(CountingActivity.class).setup();
+        CountingActivity activity = screen.get();
+        new ThemedView(activity);
+        Theme.getResources(activity);
+        screen.pause().stop();
+        replace(pkg);
+        screen.destroy();
+        Theme.getResources(context);
+        replace(pkg);
+        assertEquals(0, activity.recreations);
     }
 
     @Test public void launcherIsOptionalForInstalledTheme() {

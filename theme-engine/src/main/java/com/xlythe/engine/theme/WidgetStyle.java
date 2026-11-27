@@ -1,6 +1,8 @@
 package com.xlythe.engine.theme;
 
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -9,6 +11,11 @@ import androidx.annotation.Nullable;
 
 final class WidgetStyle {
     private WidgetStyle() {}
+
+    static TypedArray obtainAttributes(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        WidgetHosts.track(context);
+        return context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+    }
 
     // AppCompat constructors accept defStyleAttr but have no defStyleRes overload.
     static Context withFallback(Context context, int attr, int fallback) {

@@ -38,9 +38,6 @@ import androidx.annotation.StringRes;
 import androidx.annotation.UiThread;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.graphics.TypefaceCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
 import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
@@ -86,39 +83,6 @@ public class Theme {
 
     @UiThread
     public static void removeChangeListener(@NonNull Runnable listener) { changeListeners.remove(listener); }
-
-    /**
-     * Observe changes while a View host is started. A change received in the background is
-     * delivered on its next start. Registration is removed when the owner is destroyed.
-     * Register once during creation, after reading the initial selection.
-     */
-    @UiThread
-    public static void observeChanges(LifecycleOwner owner, Runnable refresh) {
-        Lifecycle lifecycle = owner.getLifecycle();
-        if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) return;
-        class Observer implements LifecycleEventObserver, Runnable {
-            long delivered = revision;
-
-            @Override public void run() {
-                if (delivered != revision && lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                    delivered = revision;
-                    refresh.run();
-                }
-            }
-
-            @Override public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
-                if (event == Lifecycle.Event.ON_DESTROY) {
-                    removeChangeListener(this);
-                    lifecycle.removeObserver(this);
-                } else if (event == Lifecycle.Event.ON_START) {
-                    run();
-                }
-            }
-        }
-        Observer observer = new Observer();
-        addChangeListener(observer);
-        lifecycle.addObserver(observer);
-    }
 
     private static void notifyThemeChanged() {
         revision++;
@@ -224,6 +188,7 @@ public class Theme {
                         if (Arrays.asList(sPackageNames).contains(packageName)) {
                             TYPEFACE_MAP.clear();
                             defaultFontOverrides.clear();
+                            WidgetHosts.onPackageChanged();
                             notifyThemeChanged();
                         }
                     }

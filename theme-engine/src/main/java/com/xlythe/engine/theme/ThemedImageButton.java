@@ -36,7 +36,7 @@ public class ThemedImageButton extends AppCompatImageButton {
 
     private void setup(
             Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        TypedArray a = WidgetStyle.obtainAttributes(context, attrs, defStyleAttr, defStyleRes);
         try {
             // Get image
             setImageDrawable(Theme.get(context, WidgetAttribute.SRC.resourceId(a)));

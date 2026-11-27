@@ -25,7 +25,7 @@ public final class ThemedWidgets {
     @UiThread
     public static void apply(View view, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         Context context = view.getContext();
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.theme, defStyleAttr, defStyleRes);
+        TypedArray a = WidgetStyle.obtainAttributes(context, attrs, defStyleAttr, defStyleRes);
         try {
             Theme.Res background = Theme.get(context, WidgetAttribute.BACKGROUND.resourceId(a));
             if (background != null) {

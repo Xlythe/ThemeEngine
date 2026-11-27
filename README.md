@@ -49,7 +49,7 @@ Save the selected theme package name in host preferences and restore it before i
 Theme.setPackageName(MY_THEME_PACKAGE_NAME);
 ```
 
-An XML host can call `Theme.observeChanges(this, this::recreate)` in `onCreate` to reinflate its views when a selected theme APK changes. A stopped host refreshes on its next start. Compose observes these changes automatically.
+When a selected theme APK is updated, installed or removed, ThemeEngine automatically recreates Activities that inflated a themed widget or used `ThemedWidgets.apply`. Stopped Activities refresh on their next start. Compose-only screens recompose in place. For custom rendering that reads resources directly, register a callback with `Theme.addChangeListener` and remove it when the owner is destroyed.
 
 Then you can either automatically grab the images and colors via ThemedView in xml or programmaically set them in java.
 ```xml
